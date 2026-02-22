@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>CADAVRE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+  :root { --bg:#f0ece4; --fg:#1a1a1a; }
+
+  * { box-sizing:border-box; margin:0; padding:0;
+      touch-action:none; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family:'Press Start 2P',monospace;
+    background:var(--bg); color:var(--fg);
+    width:100vw; height:100vh; height:100dvh;
+    overflow:hidden; display:flex; flex-direction:column;
+  }
+
+  .screen { display:none; width:100%; height:100%; flex-direction:column; }
+  .screen.active { display:flex; }
+
+  .hdr {
+    flex-shrink:0; padding:8px 12px;
+    border-bottom:1px solid var(--fg);
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--bg);
+  }
+  .hdr-title { font-size:10px; letter-spacing:2px; }
+  .hdr-sub   { font-size:6px; color:#666; margin-top:3px; }
+
+  .btn {
+    font-family:'Press Start 2P',monospace; font-size:7px;
+    background:var(--bg); color:var(--fg);
+    border:2px solid var(--fg); padding:8px 10px;
+    cursor:pointer; box-shadow:2px 2px 0 var(--fg);
+    white-space:nowrap; user-select:none;
+  }
+  .btn:active { box-shadow:none; transform:translate(2px,2px); }
+  .btn.inv    { background:var(--fg); color:var(--bg); }
+  .btn.sm     { font-size:6px; padding:5px 8px; box-shadow:1px 1px 0 var(--fg); }
+  .btn.danger { border-color:#888; color:#888; box-shadow:2px 2px 0 #888; }
+  .btn:disabled { opacity:0.3; pointer-events:none; }
+
+  #home { align-items:center; justify-content:center; gap:20px; }
+  .logo-block {
+    text-align:center; padding:28px 24px;
+    border:2px solid var(--fg); box-shadow:4px 4px 0 var(--fg);
+  }
+  .logo-title { font-size:16px; letter-spacing:4px; line-height:1.8; }
+  .logo-sub   { font-size:6px; color:#888; margin-top:10px; letter-spacing:2px; }
+  .home-btns  { display:flex; flex-direction:column; gap:10px; width:75%; max-width:260px; }
+  .home-btns .btn { text-align:center; padding:13px; }
+  .slot-counter { font-size:6px; color:#888; }
+
+  #projects { overflow:hidden; }
+  .proj-list { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px; }
+  .proj-item {
+    border:2px solid var(--fg); padding:8px 10px;
+    display:flex; align-items:center; justify-content:space-between;
+    box-shadow:2px 2px 0 var(--fg); background:var(--bg); gap:8px;
+  }
+  .proj-info  { flex:1; }
+  .proj-label { font-size:7px; }
+  .proj-meta  { font-size:5px; color:#888; margin-top:4px; }
+  .proj-parts { display:flex; gap:3px; margin-top:5px; }
+  .part-dot   { width:10px; height:10px; border:1px solid var(--fg); }
+  .part-dot.filled { background:var(--fg); }
+  .proj-actions { display:flex; gap:4px; flex-shrink:0; }
+
+  #draw { overflow:hidden; }
+  .draw-toolbar {
+    flex-shrink:0; padding:5px 8px;
+    border-bottom:1px solid var(--fg);
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    background:var(--bg);
+  }
+  .tool-group { display:flex; align-items:center; gap:4px; }
+  .tool-label { font-size:5px; color:#666; }
+  .size-disp  { font-size:7px; border:2px solid var(--fg); padding:3px 7px; min-width:34px; text-align:center; }
+  .undo-count { font-size:5px; color:#888; }
+
+  #draw-area { flex:1; overflow:hidden; background:#111; position:relative; }
+
+  .draw-footer {
+    flex-shrink:0; padding:6px 8px;
+    border-top:1px solid var(--fg);
+    display:flex; gap:6px; justify-content:space-between; align-items:center;
+    background:var(--bg);
+  }
+
+  #reveal { overflow:hidden; }
+  .reveal-wrap {
+    flex:1; display:flex; align-items:center; justify-content:center;
+    background:#888; overflow:hidden;
+  }
+  .reveal-wrap canvas { max-width:100%; max-height:100%; image-rendering:pixelated; }
+  .reveal-footer {
+    flex-shrink:0; padding:8px; border-top:1px solid var(--fg);
+    display:flex; gap:6px; justify-content:center; background:var(--bg);
+    flex-wrap:wrap;
+  }
+
+  .modal-bg {
+    position:fixed; inset:0; background:rgba(0,0,0,0.75);
+    display:none; align-items:center; justify-content:center; z-index:200;
+  }
+  .modal-bg.open { display:flex; }
+  .modal {
+    background:var(--bg); border:2px solid var(--fg);
+    box-shadow:4px 4px 0 var(--fg); padding:20px; max-width:280px; width:88%;
+  }
+  .modal-title { font-size:9px; margin-bottom:12px; }
+  .modal-msg   { font-size:6px; color:#555; margin-bottom:16px; line-height:1.9; }
+  .modal-btns  { display:flex; gap:8px; justify-content:flex-end; }
+
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-thumb { background:var(--fg); }
+</style>
+</head>
+<body>
+
+<div id="home" class="screen active">
+  <div class="logo-block">
+    <div class="logo-title">CADAVRE<br>EXQUIS</div>
+    <div class="logo-sub">dibujo fragmentado</div>
+  </div>
+  <div class="home-btns">
+    <button class="btn inv" onclick="startNewProject()">&#9654; NUEVO DIBUJO</button>
+    <button class="btn" id="btn-continue" onclick="showProjects('continue')" disabled>&#9672; CONTINUACIÓN</button>
+    <button class="btn" id="btn-projects" onclick="showProjects('view')"    disabled>&#8801; PROYECTOS</button>
+  </div>
+  <div class="slot-counter" id="slot-counter">SLOTS: 0 / 34</div>
+</div>
+
+<div id="projects" class="screen">
+  <div class="hdr">
+    <div>
+      <div class="hdr-title" id="proj-screen-title">PROYECTOS</div>
+      <div class="hdr-sub"   id="proj-screen-sub"></div>
+    </div>
+    <button class="btn sm" onclick="goHome()">&#8592; VOLVER</button>
+  </div>
+  <div class="proj-list" id="proj-list"></div>
+</div>
+
+<div id="draw" class="screen">
+  <div class="hdr">
+    <div>
+      <div class="hdr-title" id="draw-title">DIBUJAR</div>
+      <div class="hdr-sub"   id="draw-sub"></div>
+    </div>
+    <button class="btn sm danger" onclick="confirmDiscard()">&#10005; DESCARTAR</button>
+  </div>
+  <div class="draw-toolbar">
+    <div class="tool-group">
+      <span class="tool-label">PX</span>
+      <button class="btn sm" onclick="changeBrush(-2)">&#8722;</button>
+      <div class="size-disp" id="brush-disp">1</div>
+      <button class="btn sm" onclick="changeBrush(+2)">+</button>
+    </div>
+    <div class="tool-group">
+      <button class="btn sm" id="btn-undo" onclick="doUndo()" disabled>&#8617; UNDO</button>
+      <span class="undo-count" id="undo-count">0/10</span>
+    </div>
+    <div class="tool-group">
+      <button class="btn sm" id="btn-erase" onclick="toggleErase()">&#9633; BORRAR</button>
+    </div>
+  </div>
+  <div id="draw-area"></div>
+  <div class="draw-footer">
+    <button class="btn sm" onclick="clearZone()">LIMPIAR</button>
+    <button class="btn inv" onclick="saveDrawing()">&#10004; GUARDAR</button>
+  </div>
+</div>
+
+<div id="reveal" class="screen">
+  <div class="hdr">
+    <div class="hdr-title">REVELACIÓN</div>
+    <button class="btn sm" onclick="goHome()">&#8592; INICIO</button>
+  </div>
+  <div class="reveal-wrap"><canvas id="reveal-canvas"></canvas></div>
+  <div class="reveal-footer">
+    <button class="btn" onclick="exportReveal()">&#8595; EXPORTAR PNG</button>
+    <!-- BOTÓN ESTILIZADO COMO EXPORTAR -->
+    <button class="btn" id="btn-reveal-sep" onclick="toggleRevealLines()">LÍNEAS</button>
+    <button class="btn danger" onclick="deleteRevealed()">&#10005; BORRAR</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-bg" onclick="onModalBg(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-msg"   id="modal-msg"></div>
+    <div class="modal-btns"  id="modal-btns"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+var MAX_PROJ = 34;
+var MAX_UNDO = 10;
+var EDGE_PX  = 5;
+
+var projects     = [];
+var curProj      = null;
+var activeZone   = 0;
+var continueMode = false;
+var brushSize    = 1;
+var eraseMode    = false;
+var isDrawing    = false;
+var lastX = 0, lastY = 0;
+var undoStack    = [];
+var activeCanvas = null;
+var activeCtx    = null;
+var revealProjId = null;
+
+// Estado de las líneas
+var revealWithLines = true;
+var revealImages = [];
+
+var memSeq = 0;
+
+// ── STORAGE ─────────────────────────────────────────────────────
+function storageSave() {
+  try { localStorage.setItem('cadavre_v4', JSON.stringify(projects)); } catch(e) {}
+}
+function storageLoad() {
+  try {
+    var d = localStorage.getItem('cadavre_v4');
+    if (d) projects = JSON.parse(d);
+  } catch(e) { projects = []; }
+}
+function nextSeq() {
+  try {
+    var n = (parseInt(localStorage.getItem('cadavre_seq4') || '0')) + 1;
+    localStorage.setItem('cadavre_seq4', String(n));
+    return String(n).padStart(2, '0');
+  } catch(e) {
+    memSeq++;
+    return String(memSeq).padStart(2, '0');
+  }
+}
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+// ── SCREENS ──────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s) {
+    s.classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+}
+function goHome() { updateHome(); showScreen('home'); }
+function updateHome() {
+  var n = projects.length;
+  document.getElementById('slot-counter').textContent = 'SLOTS: ' + n + ' / ' + MAX_PROJ;
+  document.getElementById('btn-continue').disabled = n === 0;
+  document.getElementById('btn-projects').disabled = n === 0;
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────
+function modal(title, msg, btns) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-msg').innerHTML = msg;
+  var bb = document.getElementById('modal-btns');
+  bb.innerHTML = '';
+  btns.forEach(function(b) {
+    var el = document.createElement('button');
+    el.className = 'btn sm' + (b.inv ? ' inv' : '') + (b.danger ? ' danger' : '');
+    el.textContent = b.label;
+    el.onclick = function() { closeModal(); if (b.fn) b.fn(); };
+    bb.appendChild(el);
+  });
+  document.getElementById('modal-bg').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
+function onModalBg(e) { if (e.target === e.currentTarget) closeModal(); }
+
+// ── NUEVO PROYECTO ────────────────────────────────────────────────
+function startNewProject() {
+  if (projects.length >= MAX_PROJ) {
+    modal('LÍMITE', 'Máximo 34 proyectos.<br>Borra alguno primero.', [{label:'OK'}]);
+    return;
+  }
+  continueMode = false;
+  activeZone   = Math.floor(Math.random() * 3);
+  curProj      = { id:uid(), seq:nextSeq(), parts:[null,null,null], created:Date.now() };
+  openDraw();
+}
+
+// ── LISTA DE PROYECTOS ────────────────────────────────────────────
+function showProjects(mode) {
+  document.getElementById('proj-screen-title').textContent =
+    mode === 'continue' ? 'CONTINUACIÓN' : 'PROYECTOS';
+  document.getElementById('proj-screen-sub').textContent =
+    mode === 'continue' ? 'elige proyecto' : 'dibujos guardados';
+
+  var list = document.getElementById('proj-list');
+  list.innerHTML = '';
+
+  if (!projects.length) {
+    list.innerHTML = '<div style="text-align:center;font-size:7px;padding:40px;color:#888">SIN PROYECTOS</div>';
+  } else {
+    projects.forEach(function(p) {
+      var filled   = p.parts.filter(Boolean).length;
+      var complete = filled === 3;
+      var dots = p.parts.map(function(x) {
+        return '<div class="part-dot ' + (x ? 'filled' : '') + '"></div>';
+      }).join('');
+
+      var row = document.createElement('div');
+      row.className = 'proj-item';
+      row.innerHTML =
+        '<div class="proj-info">' +
+          '<div class="proj-label"># ' + p.seq + '</div>' +
+          '<div class="proj-meta">' + filled + ' / 3 &nbsp;&middot;&nbsp; ' +
+            new Date(p.created).toLocaleDateString() + '</div>' +
+          '<div class="proj-parts">' + dots + '</div>' +
+        '</div>' +
+        '<div class="proj-actions"></div>';
+
+      var acts = row.querySelector('.proj-actions');
+
+      if (mode === 'continue') {
+        if (!complete && filled > 0)
+          acts.appendChild(mkBtn('&#9654; CONT.', 'sm inv',
+            (function(id) { return function() { continuePick(id); }; })(p.id)));
+        if (complete)
+          acts.appendChild(mkBtn('&#9672; REVELAR', 'sm',
+            (function(id) { return function() { doReveal(id); }; })(p.id)));
+      } else {
+        if (complete)
+          acts.appendChild(mkBtn('&#9672; REVELAR', 'sm',
+            (function(id) { return function() { doReveal(id); }; })(p.id)));
+        acts.appendChild(mkBtn('&#10005;', 'sm danger',
+          (function(id) { return function() { confirmDelete(id); }; })(p.id)));
+      }
+      list.appendChild(row);
+    });
+  }
+  showScreen('projects');
+}
+
+function mkBtn(html, cls, fn) {
+  var b = document.createElement('button');
+  b.className = 'btn ' + cls; b.innerHTML = html; b.onclick = fn;
+  return b;
+}
+
+function confirmDelete(id) {
+  var p = projects.find(function(x) { return x.id === id; });
+  if (!p) return;
+  modal('BORRAR', '¿Borrar proyecto #' + p.seq + '?<br>Irreversible.', [
+    {label:'CANCELAR'},
+    {label:'BORRAR', danger:true, fn:function() {
+      projects = projects.filter(function(x) { return x.id !== id; });
+      storageSave(); showProjects('view');
+    }}
+  ]);
+}
+
+// ── CONTINUACIÓN ──────────────────────────────────────────────────
+function continuePick(id) {
+  var p = projects.find(function(x) { return x.id === id; });
+  if (!p) return;
+  var empty = [];
+  p.parts.forEach(function(v, i) { if (v === null) empty.push(i); });
+  if (!empty.length) { doReveal(id); return; }
+  continueMode = true;
+  activeZone   = empty[Math.floor(Math.random() * empty.length)];
+  curProj      = JSON.parse(JSON.stringify(p));
+  openDraw();
+}
+
+// ── ABRIR DIBUJO ──────────────────────────────────────────────────
+function openDraw() {
+  undoStack = [];
+  eraseMode = false;
+  document.getElementById('btn-erase').classList.remove('inv');
+  document.getElementById('draw-title').textContent =
+    continueMode ? 'CONTINUACIÓN' : 'NUEVO DIBUJO';
+  document.getElementById('draw-sub').textContent =
+    'ZONA ' + (activeZone + 1) + ' / 3  ·  #' + curProj.seq;
+  updateBrushDisp();
+  updateUndoDisp();
+  
+  showScreen('draw');
+  requestAnimationFrame(function() { requestAnimationFrame(buildZones); });
+}
+
+// ── BUILD ZONAS ───────────────────────────────────────────────────
+// Se mantiene showSeparators=true SIEMPRE (hardcodeado al dibujar)
+function buildZones() {
+  var area   = document.getElementById('draw-area');
+  area.innerHTML = '';
+  activeCanvas = null;
+  activeCtx    = null;
+
+  var totalW = area.offsetWidth;
+  var totalH = area.offsetHeight;
+  if (!totalW || !totalH) { requestAnimationFrame(buildZones); return; }
+
+  var zW = totalW;
+  var zH = Math.floor((totalH - 2) / 3); 
+
+  for (var i = 0; i < 3; i++) {
+    var topPx = i * (zH + 1);
+
+    // Separadores: Siempre visibles en modo dibujo (display:block)
+    if (i > 0) {
+      var sep = document.createElement('div');
+      sep.className = 'separator-line'; 
+      sep.style.cssText =
+        'position:absolute;left:0;top:' + (topPx - 1) + 'px;' +
+        'width:100%;height:1px;background:#1a1a1a;pointer-events:none;z-index:2;display:block;';
+      area.appendChild(sep);
+    }
+
+    var cv = document.createElement('canvas');
+    cv.width  = zW;
+    cv.height = zH;
+    cv.style.cssText =
+      'position:absolute;left:0;top:' + topPx + 'px;' +
+      'width:' + zW + 'px;height:' + zH + 'px;' +
+      'image-rendering:pixelated;image-rendering:crisp-edges;display:block;';
+    area.appendChild(cv);
+
+    var ctx = cv.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    if (i === activeZone) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, zW, zH);
+      cv.style.cursor = 'crosshair';
+      cv.addEventListener('mousedown',  onMD);
+      cv.addEventListener('mousemove',  onMM);
+      cv.addEventListener('mouseup',    onMU);
+      cv.addEventListener('mouseleave', onMU);
+      cv.addEventListener('touchstart', onTS, {passive:false});
+      cv.addEventListener('touchmove',  onTM, {passive:false});
+      cv.addEventListener('touchend',   onMU);
+      activeCanvas = cv;
+      activeCtx    = ctx;
+
+    } else {
+      ctx.fillStyle = '#111111';
+      ctx.fillRect(0, 0, zW, zH);
+      cv.style.cursor       = 'default';
+      cv.style.pointerEvents = 'none';
+
+      var gh = document.createElement('div');
+      gh.style.cssText =
+        'position:absolute;left:50%;pointer-events:none;' +
+        'transform:translateX(-50%);' +
+        'font-family:"Press Start 2P",monospace;' +
+        'font-size:6px;color:rgba(255,255,255,0.06);letter-spacing:6px;' +
+        'top:' + (topPx + Math.floor(zH / 2) - 4) + 'px;';
+      gh.textContent = '· · ·';
+      area.appendChild(gh);
+
+      var adjacent = Math.abs(i - activeZone) === 1;
+      var hasPart  = !!curProj.parts[i];
+
+      if (continueMode && adjacent && hasPart) {
+        paintEdgeHint(ctx, curProj.parts[i], zW, zH, i < activeZone);
+      }
+    }
+  }
+}
+
+function paintEdgeHint(destCtx, dataURL, w, h, showBottom) {
+  var img = new Image();
+  img.onload = function() {
+    var tmp  = document.createElement('canvas');
+    tmp.width  = w;
+    tmp.height = h;
+    var tctx = tmp.getContext('2d');
+    tctx.imageSmoothingEnabled = false;
+    tctx.drawImage(img, 0, 0, w, h);
+
+    var srcY  = showBottom ? (h - EDGE_PX) : 0;
+    var strip = tctx.getImageData(0, srcY, w, EDGE_PX);
+
+    var destY = showBottom ? (h - EDGE_PX) : 0;
+    destCtx.putImageData(strip, 0, destY);
+
+    destCtx.fillStyle = 'rgba(255,255,255,0.25)';
+    if (showBottom) {
+      destCtx.fillRect(0, h - EDGE_PX - 1, w, 1);
+    } else {
+      destCtx.fillRect(0, EDGE_PX, w, 1);
+    }
+  };
+  img.onerror = function() {}; 
+  img.src = dataURL;
+}
+
+// ── DIBUJO ────────────────────────────────────────────────────────
+function canvasXY(clientX, clientY) {
+  var r = activeCanvas.getBoundingClientRect();
+  return {
+    x: Math.round((clientX - r.left) * activeCanvas.width  / r.width),
+    y: Math.round((clientY - r.top)  * activeCanvas.height / r.height)
+  };
+}
+
+function pushUndo() {
+  if (undoStack.length >= MAX_UNDO) undoStack.shift();
+  undoStack.push(activeCtx.getImageData(0, 0, activeCanvas.width, activeCanvas.height));
+  updateUndoDisp();
+}
+function doUndo() {
+  if (!undoStack.length) return;
+  activeCtx.putImageData(undoStack.pop(), 0, 0);
+  updateUndoDisp();
+}
+function updateUndoDisp() {
+  document.getElementById('undo-count').textContent = undoStack.length + '/10';
+  document.getElementById('btn-undo').disabled = undoStack.length === 0;
+}
+
+function paintPx(x, y) {
+  var half = Math.floor(brushSize / 2);
+  activeCtx.fillStyle = eraseMode ? '#ffffff' : '#000000';
+  activeCtx.fillRect(x - half, y - half, brushSize, brushSize);
+}
+
+function paintLine(x0, y0, x1, y1) {
+  var dx = Math.abs(x1-x0), dy = Math.abs(y1-y0);
+  var sx = x0<x1?1:-1, sy = y0<y1?1:-1, err = dx-dy, e2;
+  for (;;) {
+    paintPx(x0, y0);
+    if (x0===x1 && y0===y1) break;
+    e2 = 2*err;
+    if (e2 > -dy) { err -= dy; x0 += sx; }
+    if (e2 <  dx) { err += dx; y0 += sy; }
+  }
+}
+
+function onMD(e) {
+  if (!activeCanvas) return;
+  e.preventDefault(); pushUndo(); isDrawing = true;
+  var p = canvasXY(e.clientX, e.clientY); lastX=p.x; lastY=p.y; paintPx(p.x,p.y);
+}
+function onMM(e) {
+  if (!isDrawing||!activeCanvas) return; e.preventDefault();
+  var p = canvasXY(e.clientX, e.clientY);
+  paintLine(lastX,lastY,p.x,p.y); lastX=p.x; lastY=p.y;
+}
+function onMU() { isDrawing = false; }
+
+function onTS(e) {
+  if (!activeCanvas) return;
+  e.preventDefault(); pushUndo(); isDrawing = true;
+  var t = e.touches[0];
+  var p = canvasXY(t.clientX, t.clientY); lastX=p.x; lastY=p.y; paintPx(p.x,p.y);
+}
+function onTM(e) {
+  if (!isDrawing||!activeCanvas) return; e.preventDefault();
+  var t = e.touches[0];
+  var p = canvasXY(t.clientX, t.clientY);
+  paintLine(lastX,lastY,p.x,p.y); lastX=p.x; lastY=p.y;
+}
+
+function toggleErase() {
+  eraseMode = !eraseMode;
+  document.getElementById('btn-erase').classList.toggle('inv', eraseMode);
+}
+function changeBrush(d) {
+  brushSize = Math.max(1, Math.min(21, brushSize + d));
+  if (brushSize > 1 && brushSize % 2 === 0) {
+    brushSize += (d > 0 ? 1 : -1);
+    brushSize = Math.max(1, Math.min(21, brushSize));
+  }
+  updateBrushDisp();
+}
+function updateBrushDisp() {
+  document.getElementById('brush-disp').textContent = brushSize + 'px';
+}
+
+function clearZone() {
+  modal('LIMPIAR', '¿Limpiar la zona activa?', [
+    {label:'CANCELAR'},
+    {label:'LIMPIAR', danger:true, fn:function() {
+      pushUndo();
+      activeCtx.fillStyle = '#ffffff';
+      activeCtx.fillRect(0, 0, activeCanvas.width, activeCanvas.height);
+    }}
+  ]);
+}
+
+// ── GUARDAR / DESCARTAR ───────────────────────────────────────────
+function saveDrawing() {
+  if (!activeCanvas) return;
+  var dataURL = activeCanvas.toDataURL('image/png');
+  if (continueMode) {
+    var idx = projects.findIndex(function(x) { return x.id === curProj.id; });
+    if (idx < 0) return;
+    projects[idx].parts[activeZone] = dataURL;
+    var filled = projects[idx].parts.filter(Boolean).length;
+    storageSave();
+    if (filled === 3) {
+      var pid = projects[idx].id;
+      modal('&#10003; COMPLETO',
+        'Proyecto #' + projects[idx].seq + '<br>tiene las 3 partes.<br>&#191;Revelar ahora?', [
+        {label:'DESPUÉS', fn:goHome},
+        {label:'REVELAR', inv:true, fn:function() { doReveal(pid); }}
+      ]);
+    } else {
+      modal('GUARDADO', 'Parte ' + (activeZone+1) + ' guardada.', [{label:'OK', fn:goHome}]);
+    }
+  } else {
+    curProj.parts[activeZone] = dataURL;
+    projects.push(curProj);
+    storageSave();
+    modal('GUARDADO',
+      'Proyecto #' + curProj.seq + '<br>Parte ' + (activeZone+1) + ' / 3',
+      [{label:'OK', fn:goHome}]);
+  }
+}
+
+function confirmDiscard() {
+  modal('DESCARTAR', '¿Descartar el trazo actual?', [
+    {label:'CANCELAR'},
+    {label:'DESCARTAR', danger:true, fn:goHome}
+  ]);
+}
+
+// ── REVELACIÓN ────────────────────────────────────────────────────
+function doReveal(id) {
+  var p = projects.find(function(x) { return x.id === id; });
+  if (!p) return;
+  revealProjId = id;
+  
+  // Por defecto mostramos líneas
+  revealWithLines = true;
+  // Botón estilo "Exportar": Si hay líneas, el botón se invierte (negro) para indicar "activo"
+  var btn = document.getElementById('btn-reveal-sep');
+  btn.classList.add('inv'); 
+
+  showScreen('reveal');
+  
+  var cv    = document.getElementById('reveal-canvas');
+  revealImages = [null, null, null];
+  var loaded = 0;
+  
+  p.parts.forEach(function(src, i) {
+    if (!src) { loaded++; if (loaded===3) renderRevealCanvas(); return; }
+    var img = new Image();
+    img.onload  = function() { revealImages[i]=img; loaded++; if(loaded===3) renderRevealCanvas(); };
+    img.onerror = function() {                  loaded++; if(loaded===3) renderRevealCanvas(); };
+    img.src = src;
+  });
+}
+
+function toggleRevealLines() {
+  revealWithLines = !revealWithLines;
+  var btn = document.getElementById('btn-reveal-sep');
+  // Si showLines es true, botón inv (negro). Si false, botón normal (crema).
+  btn.classList.toggle('inv', revealWithLines);
+  renderRevealCanvas();
+}
+
+function renderRevealCanvas() {
+  var cv = document.getElementById('reveal-canvas');
+  var ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+
+  var ref = revealImages.find(Boolean);
+  var w   = ref ? ref.width  : 300;
+  var h   = ref ? ref.height : 200;
+
+  cv.height = h * 3 + (revealWithLines ? 2 : 0);
+  cv.width  = w;
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, cv.width, cv.height);
+
+  revealImages.forEach(function(img, i) {
+    if (!img) return;
+    
+    var yPos = i * h;
+    if (revealWithLines) {
+      yPos += i;
+    }
+    
+    ctx.drawImage(img, 0, yPos);
+
+    if (revealWithLines && i < 2) {
+      var lineY = (i + 1) * (h + 1) - 1;
+      ctx.fillStyle='#1a1a1a'; 
+      ctx.fillRect(0, lineY, w, 1);
+    }
+  });
+}
+
+function exportReveal() {
+  var cv = document.getElementById('reveal-canvas');
+  var p  = projects.find(function(x) { return x.id === revealProjId; });
+  var a  = document.createElement('a');
+  a.download = 'cadavre_' + (p ? p.seq : '00') + '.png';
+  a.href = cv.toDataURL('image/png');
+  a.click();
+}
+
+function deleteRevealed() {
+  var p = projects.find(function(x) { return x.id === revealProjId; });
+  if (!p) return;
+  modal('BORRAR', '¿Borrar proyecto #' + p.seq + '?', [
+    {label:'CANCELAR'},
+    {label:'BORRAR', danger:true, fn:function() {
+      projects = projects.filter(function(x) { return x.id !== revealProjId; });
+      storageSave(); revealProjId = null; goHome();
+    }}
+  ]);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+storageLoad();
+updateHome();
+document.addEventListener('touchmove', function(e) { e.preventDefault(); }, {passive:false});
+</script>
+</body>
+</html>
