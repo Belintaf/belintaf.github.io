@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="color-scheme" content="dark"><meta name="theme-color" content="#080808">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MYCOLAB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080808;--bg2:#101010;--bg3:#181818;--bg4:#1e1e1e;
+  --brd:#252525;--brd2:#333;--brd3:#444;
+  --txt:#c8bfa8;--dim:#5a5248;--dim2:#3a3530;
+  --acc:#a07520;--gld:#c9a030;--gld2:#e0b840;
+  --red:#6a1a1a;--rdt:#bf5555;
+  --sel:#1a3a1a;--selt:#70cf55;--selb:#3a6a30;
+  --s-col:#1e3a1a;--s-col-t:#70bf58;--s-col-b:#3a6630;
+  --s-pri:#3a3010;--s-pri-t:#c0a030;--s-pri-b:#7a6020;
+  --s-fru:#453a00;--s-fru-t:#e0c020;--s-fru-b:#9a8010;
+  --s-des:#1a2535;--s-des-t:#5a90c0;--s-des-b:#2a4a6a;
+  --s-fin:#181818;--s-fin-t:#505050;--s-fin-b:#303030;
+  --s-con:#3a1010;--s-con-t:#c04040;--s-con-b:#7a2020;
+  --s-act:#1a2a3a;--s-act-t:#6ab0d0;--s-act-b:#2a5a7a;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--txt);font-family:'VT323',monospace;font-size:20px;line-height:1.35;min-height:100%}
+
+header{background:var(--bg2);border-bottom:2px solid var(--brd2);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:env(safe-area-inset-top,0px);z-index:100}
+.logo{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gld);letter-spacing:2px;display:flex;align-items:center;gap:8px}
+nav{display:flex;gap:2px;overflow-x:auto}
+nav button{background:none;border:1px solid var(--brd);color:var(--dim);font-family:'VT323',monospace;font-size:15px;padding:5px 9px;cursor:pointer;letter-spacing:1px;white-space:nowrap;flex-shrink:0}
+nav button:hover{color:var(--txt);border-color:var(--brd2)}
+nav button.active{border-color:var(--acc);color:var(--gld);background:var(--bg3)}
+
+main{max-width:760px;margin:0 auto;padding:14px 16px}
+section{display:none}
+section.active{display:block}
+
+.sh{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--brd);padding-bottom:6px;margin-bottom:14px;gap:8px;flex-wrap:wrap}
+.sh-title{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--dim);letter-spacing:2px}
+.sh-acts{display:flex;gap:4px;align-items:center}
+.sh-meta{font-size:16px;color:var(--dim)}
+
+/* SEARCH */
+.search-bar{display:flex;gap:6px;margin-bottom:10px}
+.search-bar input{flex:1}
+
+/* FILTERS */
+.filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.fb{background:var(--bg2);border:1px solid var(--brd);color:var(--dim);font-family:'VT323',monospace;font-size:15px;padding:1px 8px;cursor:pointer}
+.fb:hover{color:var(--txt)}.fb.on{border-color:var(--acc);color:var(--gld)}
+.fsep{color:var(--brd);padding:0 2px;font-size:16px;align-self:center}
+
+/* CARDS */
+.grid{display:flex;flex-direction:column;gap:4px}
+.pcard{background:var(--bg2);border:1px solid var(--brd);padding:9px 12px;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:4px 14px;align-items:start}
+.pcard:hover{border-color:var(--brd2);background:var(--bg3)}
+.pcard-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pcode{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--gld);letter-spacing:1px;white-space:nowrap}
+.pstrain{font-size:20px;color:var(--txt)}
+.pmeta{font-size:15px;color:var(--dim)}
+.pdays{font-size:14px;color:var(--dim);padding:1px 5px;border:1px solid var(--brd);white-space:nowrap}
+.sel-star{color:var(--selt);font-size:16px;line-height:1}
+
+.badge{font-size:13px;padding:2px 7px;border:1px solid;white-space:nowrap;font-family:'VT323',monospace;letter-spacing:1px}
+.s-COLONIZANDO,[data-s=COLONIZANDO],.s-FRESCO,[data-s=FRESCO]{--sb:var(--s-col);--sbb:var(--s-col-b);--st:var(--s-col-t)}
+.s-PRIMORDIANDO,[data-s=PRIMORDIANDO],.s-DEGRADADO,[data-s=DEGRADADO]{--sb:var(--s-pri);--sbb:var(--s-pri-b);--st:var(--s-pri-t)}
+.s-FRUCTIFICANDO,[data-s=FRUCTIFICANDO]{--sb:var(--s-fru);--sbb:var(--s-fru-b);--st:var(--s-fru-t)}
+.s-DESCANSANDO,[data-s=DESCANSANDO],.s-VIABLE,[data-s=VIABLE]{--sb:var(--s-des);--sbb:var(--s-des-b);--st:var(--s-des-t)}
+.s-FINALIZADO,[data-s=FINALIZADO],.s-DESCARTADO,[data-s=DESCARTADO]{--sb:var(--s-fin);--sbb:var(--s-fin-b);--st:var(--s-fin-t)}
+.s-CONTAMINADO,[data-s=CONTAMINADO]{--sb:var(--s-con);--sbb:var(--s-con-b);--st:var(--s-con-t)}
+.s-ACTIVO,[data-s=ACTIVO]{--sb:var(--s-act);--sbb:var(--s-act-b);--st:var(--s-act-t)}
+.badge,.sbtn.cur{background:var(--sb);border-color:var(--sbb);color:var(--st)}
+
+/* DETAIL */
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--dim);font-size:17px;cursor:pointer;background:none;border:none;font-family:'VT323',monospace;padding:0;margin-bottom:14px;letter-spacing:1px}
+.back:hover{color:var(--acc)}
+.dhead{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:12px}
+.dcode{font-family:'Press Start 2P',monospace;font-size:11px;color:var(--gld);margin-bottom:4px;letter-spacing:2px}
+.dstrain{font-size:26px;color:var(--txt);margin-bottom:2px}.dsub{font-size:16px;color:var(--dim)}
+.info-row{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:12px}
+.ibox{background:var(--bg2);border:1px solid var(--brd);padding:7px 10px}
+.ilabel{font-size:12px;color:var(--dim);margin-bottom:1px;letter-spacing:1px}
+.ivalue{font-size:19px;color:var(--txt)}
+.ivalue-big{font-size:24px;color:var(--gld)}
+
+/* LINEAGE */
+.lineage{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:12px;padding:8px 10px;background:var(--bg3);border:1px solid var(--brd)}
+.lin-item{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--dim);cursor:pointer;padding:3px 6px;border:1px solid var(--brd)}
+.lin-item:hover{color:var(--gld);border-color:var(--acc)}
+.lin-item.current{color:var(--gld);border-color:var(--acc)}
+.lin-arrow{color:var(--dim);font-size:14px}
+
+/* SELECTION */
+.sel-box{background:var(--bg3);border:1px solid var(--brd);padding:8px 10px;margin-bottom:12px;display:flex;align-items:flex-start;gap:10px}
+.sel-box.active{background:var(--sel);border-color:var(--selb)}
+.sel-toggle{background:none;border:1px solid var(--brd2);color:var(--dim);font-family:'VT323',monospace;font-size:15px;padding:3px 8px;cursor:pointer;white-space:nowrap;letter-spacing:1px}
+.sel-toggle:hover{border-color:var(--acc);color:var(--gld)}
+.sel-box.active .sel-toggle{border-color:var(--selb);color:var(--selt)}
+.sel-crit{flex:1;font-size:17px;color:var(--txt);background:none;border:none;outline:none;font-family:'VT323',monospace}
+.sel-crit::placeholder{color:var(--dim)}
+
+/* STATUS */
+.status-row{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:12px}
+.sbtn{font-family:'VT323',monospace;font-size:15px;padding:3px 9px;cursor:pointer;border:1px solid var(--brd);background:var(--bg2);color:var(--dim);letter-spacing:1px}
+.sbtn:hover{color:var(--txt);border-color:var(--brd2)}
+
+/* NOTES */
+.notebox{background:var(--bg2);border:1px solid var(--brd);padding:8px 10px;margin-bottom:12px}
+.notebox-label{font-size:12px;color:var(--dim);margin-bottom:4px;letter-spacing:1px}
+textarea{width:100%;background:none;border:none;color:var(--txt);font-family:'VT323',monospace;font-size:19px;resize:vertical;min-height:60px;outline:none;line-height:1.35}
+
+/* PHOTOS */
+.photo-section{margin-bottom:12px}
+.subsec-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--brd);padding-bottom:5px;margin-bottom:8px}
+.subsec-title{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--dim);letter-spacing:2px}
+.photo-grid{display:flex;flex-wrap:wrap;gap:6px}
+.photo-thumb{position:relative;width:90px;height:90px;cursor:pointer;flex-shrink:0;border:1px solid var(--brd)}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-thumb:hover .photo-del{opacity:1}
+.photo-del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.85);border:none;color:var(--rdt);font-size:14px;cursor:pointer;width:18px;height:18px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .1s;padding:0;line-height:1}
+.photo-add{width:90px;height:90px;border:1px dashed var(--brd2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--dim);font-size:28px;flex-shrink:0}
+.photo-add:hover{border-color:var(--acc);color:var(--gld)}
+
+/* LIGHTBOX */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:999;align-items:center;justify-content:center}
+.lightbox.open{display:flex}
+.lightbox img{max-width:90vw;max-height:90vh;object-fit:contain}
+.lb-close{position:fixed;top:16px;right:16px;background:none;border:1px solid var(--brd2);color:var(--txt);font-family:'VT323',monospace;font-size:20px;padding:4px 12px;cursor:pointer;z-index:1000}
+.lb-close:hover{border-color:var(--rdt);color:var(--rdt)}
+
+/* FLUSHES */
+.flush-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.fitem{background:var(--bg2);border:1px solid var(--brd);overflow:hidden}
+.fitem-head{padding:7px 10px;display:grid;grid-template-columns:28px 1fr auto auto;gap:0 10px;align-items:center;cursor:pointer}
+.fitem-head:hover{background:var(--bg3)}
+.fnum{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--acc)}
+.fyield{font-size:20px;color:var(--txt)}
+.fdate{font-size:15px;color:var(--dim)}
+.fexp{font-size:16px;color:var(--dim);transition:transform .15s}
+.fexp.open{transform:rotate(180deg)}
+.fitem-body{display:none;padding:8px 10px;border-top:1px solid var(--brd);background:var(--bg3)}
+.fitem-body.open{display:block}
+.fitem-body textarea{min-height:50px;font-size:17px}
+.fdel{background:none;border:none;color:var(--dim);font-size:17px;cursor:pointer;padding:0;line-height:1}
+.fdel:hover{color:var(--rdt)}
+
+/* ADD FLUSH */
+.add-flush{background:var(--bg3);border:1px dashed var(--brd2);padding:10px;display:none;flex-direction:column;gap:8px}
+.add-flush.open{display:flex}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fl{font-size:12px;color:var(--dim);letter-spacing:1px}
+
+/* SUMMARY */
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px}
+.sum-box{background:var(--bg2);border:1px solid var(--brd);padding:10px 12px;text-align:center}
+.sum-val{font-family:'Press Start 2P',monospace;font-size:14px;color:var(--gld);margin-bottom:4px}
+.sum-label{font-size:15px;color:var(--dim)}
+.sum-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:16px}
+.sum-stat{background:var(--bg2);border:1px solid var(--brd);padding:10px 14px;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.sum-stat-label{font-size:17px;color:var(--dim)}
+.sum-stat-val{font-size:22px;color:var(--txt)}
+.recent-item{background:var(--bg2);border:1px solid var(--brd);padding:8px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:0 12px;align-items:center;cursor:pointer;margin-bottom:4px}
+.recent-item:hover{border-color:var(--brd2)}
+
+/* PRINTS */
+.prcard{background:var(--bg2);border:1px solid var(--brd);padding:9px 12px;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:4px 14px;align-items:start}
+.prcard:hover{border-color:var(--brd2);background:var(--bg3)}
+
+/* INPUTS */
+input,select{background:var(--bg2);border:1px solid var(--brd);color:var(--txt);font-family:'VT323',monospace;font-size:19px;padding:4px 8px;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--acc)}
+select option{background:var(--bg2)}
+
+/* BUTTONS */
+.btn{background:var(--bg2);border:1px solid var(--brd2);color:var(--dim);font-family:'VT323',monospace;font-size:18px;padding:4px 12px;cursor:pointer;letter-spacing:1px}
+.btn:hover{color:var(--txt);border-color:var(--txt)}
+.btn-a{border-color:var(--acc);color:var(--gld)}.btn-a:hover{background:var(--acc);color:var(--bg)}
+.btn-x{border-color:var(--red);color:var(--rdt)}.btn-x:hover{background:var(--red);color:var(--txt)}
+.btn-sm{font-size:14px;padding:2px 8px}
+.btn-sel{border-color:var(--selb);color:var(--selt)}.btn-sel:hover{background:var(--sel)}
+.del-confirm{display:flex;align-items:center;gap:6px}
+.del-confirm span{font-size:16px;color:var(--rdt);letter-spacing:1px}
+
+/* FORMS */
+.form-box{background:var(--bg2);border:1px solid var(--brd);padding:16px;display:flex;flex-direction:column;gap:12px}
+.code-preview{font-family:'Press Start 2P',monospace;font-size:13px;color:var(--gld);padding:12px;background:var(--bg3);border:1px solid var(--brd2);text-align:center;letter-spacing:4px}
+
+/* STRAINS */
+.cepa-list{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.citem{background:var(--bg2);border:1px solid var(--brd);padding:9px 12px;display:flex;justify-content:space-between;align-items:center}
+.ccode{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--gld);margin-bottom:3px}
+.cname{font-size:20px;color:var(--txt)}.ccnt{font-size:15px;color:var(--dim)}
+.add-row{background:var(--bg3);border:1px dashed var(--brd2);padding:10px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+
+/* NUEVO CHOICE */
+.nuevo-choice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.choice-btn{background:var(--bg2);border:1px solid var(--brd2);padding:20px;text-align:center;cursor:pointer;font-family:'VT323',monospace}
+.choice-btn:hover{border-color:var(--acc);background:var(--bg3)}
+.choice-btn .choice-icon{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--gld);margin-bottom:8px}
+.choice-btn .choice-sub{font-size:16px;color:var(--dim)}
+.choice-btn.selected{border-color:var(--acc);background:var(--bg3)}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:998;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.overlay-box{background:var(--bg2);border:1px solid var(--brd2);padding:24px;max-width:380px;width:90%;font-family:'VT323',monospace;text-align:center}
+.overlay-title{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gld);margin-bottom:16px}
+.overlay-body{font-size:18px;color:var(--txt);margin-bottom:8px}
+.overlay-warn{font-size:16px;color:var(--rdt);margin-bottom:20px}
+.overlay-acts{display:flex;gap:8px;justify-content:center}
+
+/* STATUS HISTORY */
+.hrow{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--brd);padding:6px 10px;margin-bottom:4px}
+.hrow .badge{min-width:112px;text-align:center}
+.hday{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--gld);min-width:60px}
+.hdate-fixed{font-size:17px;color:var(--dim)}
+input.hdate{width:auto;font-size:17px;padding:1px 6px;color:var(--dim)}
+.hdur{margin-left:auto;font-size:18px;color:var(--txt)}
+.hx{width:10px}
+.hnote{font-size:15px;color:var(--dim);margin-bottom:6px}
+.empty{border:1px dashed var(--brd);padding:32px 20px;text-align:center;color:var(--dim);font-size:18px}
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:10px;color:var(--gld);letter-spacing:3px;z-index:9999}
+
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--brd2)}
+
+@media(max-width:560px){
+  .info-row{grid-template-columns:1fr 1fr}
+  .frow{grid-template-columns:1fr}
+  nav button{font-size:13px;padding:5px 7px}
+  .logo{font-size:7px}
+  .sum-grid,.sum-stats{grid-template-columns:1fr 1fr}
+  .nuevo-choice{grid-template-columns:1fr}
+  .photo-thumb,.photo-add{width:76px;height:76px}
+}
+</style>
+</head>
+<body>
+
+<div id="loading">▓ MYCOLAB</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLB()">
+  <button class="lb-close" onclick="closeLB()">✕ CLOSE</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<div class="overlay" id="imp-overlay">
+  <div class="overlay-box">
+    <div class="overlay-title">IMPORT DATA</div>
+    <div class="overlay-body" id="imp-info"></div>
+    <div class="overlay-warn">Current data will be replaced</div>
+    <div class="overlay-acts">
+      <button class="btn btn-x" id="imp-yes">YES, IMPORT</button>
+      <button class="btn" id="imp-no">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="photo-input"  accept="image/*" style="display:none" onchange="handlePhoto(event)">
+<input type="file" id="pphoto-input" accept="image/*" style="display:none" onchange="handlePrintPhoto(event)">
+<input type="file" id="import-input" accept=".json"   style="display:none" onchange="handleImport(event)">
+
+<header>
+  <div class="logo">
+    <svg width="18" height="18" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="2" width="6" height="3" fill="#c9a030"/>
+      <rect x="0" y="3" width="8" height="2" fill="#c9a030"/>
+      <rect x="2" y="3" width="1" height="1" fill="#080808"/>
+      <rect x="5" y="3" width="1" height="1" fill="#080808"/>
+      <rect x="3" y="5" width="2" height="3" fill="#a07520"/>
+    </svg>
+    MYCOLAB
+  </div>
+  <nav>
+    <button id="nav-resumen"   onclick="go('resumen')">▣ SUM</button>
+    <button id="nav-cultivos"  class="active" onclick="go('cultivos')">CULTURES</button>
+    <button id="nav-prints"    onclick="go('prints')">PRINTS</button>
+    <button id="nav-cepas"     onclick="go('cepas')">STRAINS</button>
+    <button id="nav-nuevo"     onclick="go('nuevo')">+ NEW</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- SUMMARY -->
+<section id="sec-resumen">
+  <div class="sh"><span class="sh-title">SUMMARY</span></div>
+  <div id="resumen-content"></div>
+</section>
+
+<!-- CULTURES -->
+<section id="sec-cultivos" class="active">
+  <div class="sh">
+    <span class="sh-title">CULTURES</span>
+    <div class="sh-acts">
+      <span class="sh-meta" id="pcount"></span>
+      <button class="btn btn-sm" onclick="exportData()">↓ EXP</button>
+      <button class="btn btn-sm" onclick="document.getElementById('import-input').click()">↑ IMP</button>
+    </div>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="search by code or strain..." oninput="renderList()">
+  </div>
+  <div class="filters" id="filters"></div>
+  <div class="grid" id="pgrid"></div>
+</section>
+
+<!-- DETALLE PASTEL -->
+<section id="sec-detalle">
+  <button class="back" onclick="go('cultivos')">◄ BACK</button>
+  <div id="dcontent"></div>
+</section>
+
+<!-- PRINTS -->
+<section id="sec-prints">
+  <div class="sh">
+    <span class="sh-title">PRINTS</span>
+    <span class="sh-meta" id="prcount"></span>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="pr-search" placeholder="search prints..." oninput="renderPrints()">
+  </div>
+  <div class="filters" id="pr-filters"></div>
+  <div class="grid" id="prgrid"></div>
+</section>
+
+<!-- DETALLE PRINT -->
+<section id="sec-pdetalle">
+  <button class="back" id="pr-back-btn" onclick="go('prints')">◄ BACK</button>
+  <div id="prcontent"></div>
+</section>
+
+<!-- NUEVO -->
+<section id="sec-nuevo">
+  <div class="sh"><span class="sh-title">NEW</span></div>
+  <div class="nuevo-choice" id="nuevo-choice">
+    <div class="choice-btn" onclick="showNuevoForm('pastel')">
+      <div class="choice-icon">▓ CULTURE</div>
+      <div class="choice-sub">PF-Tek · Bulk · BRF Puck · Agar</div>
+    </div>
+    <div class="choice-btn" onclick="showNuevoForm('print')">
+      <div class="choice-icon">▤ PRINT</div>
+      <div class="choice-sub">Spore registry</div>
+    </div>
+  </div>
+  <div id="nuevo-form-container"></div>
+</section>
+
+<!-- STRAINS -->
+<section id="sec-cepas">
+  <div class="sh"><span class="sh-title">STRAINS</span></div>
+  <div class="cepa-list" id="cepa-list"></div>
+  <div class="add-row">
+    <div class="fg" style="flex:0 0 80px">
+      <label class="fl">CODE</label>
+      <input type="text" id="c-code" maxlength="6" placeholder="MR" oninput="this.value=this.value.toUpperCase()">
+    </div>
+    <div class="fg" style="flex:1;min-width:160px">
+      <label class="fl">NAME</label>
+      <input type="text" id="c-name" placeholder="Matias Romero">
+    </div>
+    <button class="btn btn-a" onclick="addCepa()" style="flex-shrink:0">+ ADD</button>
+  </div>
+</section>
+
+</main>
+<script>
+// ── INDEXEDDB ──────────────────────────────────────────────────────────────────
+let _db;
+const openIDB=()=>_db||(_db=new Promise((res,rej)=>{
+  const r=indexedDB.open('mycolab',1);
+  r.onupgradeneeded=e=>e.target.result.createObjectStore('kv');
+  r.onsuccess=e=>{const db=e.target.result;db.onversionchange=()=>{db.close();_db=null;};res(db);};
+  r.onerror=e=>{_db=null;rej(e.target.error);};
+}));
+const idbReq=(mode,fn)=>openIDB().then(db=>new Promise((res,rej)=>{
+  const t=db.transaction('kv',mode),r=fn(t.objectStore('kv'));
+  t.oncomplete=()=>res(r.result);t.onerror=t.onabort=()=>rej(t.error);
+}));
+const idbGet=k=>idbReq('readonly',o=>o.get(k));
+const idbSet=(k,v)=>idbReq('readwrite',o=>o.put(v,k));
+
+// ── STATE ──────────────────────────────────────────────────────────────────────
+let state={pasteles:[],cepas:[],prints:[]};
+let filters={cepa:'ALL',sus:'ALL',status:'ALL',prCepa:'ALL'};
+let currentId=null,currentPrId=null,pendingPhotoId=null,pendingPrPhotoId=null;
+let confirmingDel=null,confirmingPrDel=null,pendingImport=null;
+let expandedFlush=null,editMode=null;
+
+const STATUSES_PF  =['COLONIZANDO','PRIMORDIANDO','FRUCTIFICANDO','DESCANSANDO','FINALIZADO','CONTAMINADO'];
+const STATUSES_AG  =['ACTIVO','CONTAMINADO','DESCARTADO'];
+const STATUSES_PR  =['FRESCO','VIABLE','DEGRADADO','DESCARTADO'];
+const SUBSTRATES   =[{v:'P',l:'P — PF-TEK'},{v:'B',l:'B — BULK'},{v:'BP',l:'BP — BRF PUCK'},{v:'A',l:'A — AGAR'}];
+const SUS_SHORT={P:'PF',B:'B',BP:'BP',A:'A'}, SUS_NAME={P:'PF-Tek',B:'Bulk',BP:'BRF Puck',A:'Agar'};
+const DEFAULT_STRAINS=[
+  {code:'MR',name:'Matias Romero'},{code:'TPB',name:'Thai Pink Buffalo'},
+  {code:'GT',name:'Golden Teacher'},{code:'AB',name:'Alacabenzi'},
+  {code:'CB',name:'Charlie Brown'},{code:'FPF',name:'FP+ F8'},
+  {code:'APE',name:'APE'},{code:'YT',name:'Yeti'},
+];
+
+async function load(){
+  try{const s=await idbGet('data');if(s&&s.pasteles&&s.cepas){state=normalize(s);}
+  else{state.cepas=DEFAULT_STRAINS.map(c=>({...c}));await idbSet('data',state);}}
+  catch(e){console.error(e);}
+}
+let _saving=null,_dirty=false;
+function save(){
+  _dirty=true;
+  return _saving||(_saving=(async()=>{
+    try{while(_dirty){_dirty=false;await idbSet('data',state);}}
+    catch(e){console.error('Save:',e);}
+    finally{_saving=null;}
+  })());
+}
+const getP  = id=>state.pasteles.find(p=>p.id===id);
+const getPr = id=>state.prints.find(p=>p.id===id);
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────────
+function go(sec){
+  confirmingDel=null;confirmingPrDel=null;
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+sec).classList.add('active');
+  const nb=document.getElementById('nav-'+sec);if(nb)nb.classList.add('active');
+  if(sec==='resumen')  renderResumen();
+  if(sec==='cultivos') renderList();
+  if(sec==='prints')   renderPrints();
+  if(sec==='cepas')    renderCepas();
+  if(sec==='nuevo')    initNuevo();
+  if(sec==='detalle'&&currentId)  renderDetail(currentId);
+  if(sec==='pdetalle'&&currentPrId) renderPrDetail(currentPrId);
+}
+
+// ── UTILS ──────────────────────────────────────────────────────────────────────
+const STATUS_LABEL={COLONIZANDO:'COLONIZING',PRIMORDIANDO:'CONSOLIDATION',FRUCTIFICANDO:'FRUITING',DESCANSANDO:'RESTING',FINALIZADO:'FINISHED',CONTAMINADO:'CONTAMINATED',ACTIVO:'ACTIVE',DESCARTADO:'DISCARDED',FRESCO:'FRESH',VIABLE:'VIABLE',DEGRADADO:'DEGRADED'};
+const sl=s=>STATUS_LABEL[s]||s; // display label only; stored value unchanged
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function pad(n,d=3){return String(n).padStart(d,'0');}
+function today(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1,2)+'-'+pad(d.getDate(),2);}
+function dayDiff(a,b){return Math.round((new Date(b+'T00:00')-new Date(a+'T00:00'))/864e5);}
+function daysSince(d){if(!d)return null;const n=Math.round((new Date(today()+'T00:00')-new Date(d+'T00:00'))/864e5);return n>=0?n:null;}
+function isAgar(p){return p&&(p.substrate==='A');}
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const js=v=>esc(JSON.stringify(v)); // literal JS seguro dentro de atributos on*
+const toGen=(v,d=1)=>{const n=parseInt(v,10);return Number.isNaN(n)?d:Math.min(99,Math.max(0,n));}; // permite 0 (el original usaba ||1)
+function normalize(s){
+  const ok=id=>typeof id==='string'&&/^[\w-]+$/.test(id);
+  s.prints=s.prints||[];
+  s.pasteles.forEach(p=>{if(!ok(p.id))p.id=uid();p.flushes=p.flushes||[];p.photos=p.photos||[];
+    if(!Array.isArray(p.history)||!p.history.length)p.history=[{status:p.substrate==='A'?'ACTIVO':'COLONIZANDO',date:p.dateIn||null}];
+    if(p.history[p.history.length-1].status!==p.status)p.history.push({status:p.status,date:null}); // cambio previo sin fecha registrada
+  });
+  s.prints.forEach(p=>{if(!ok(p.id))p.id=uid();p.originCode=p.originCode||'';if(!Array.isArray(p.photos))p.photos=p.photo?[{data:p.photo,date:p.date||''}]:[];delete p.photo;});
+  return s;
+}
+
+// ── SUMMARY ────────────────────────────────────────────────────────────────────
+function renderResumen(){
+  const ps=state.pasteles;
+  const active=ps.filter(p=>!['FINALIZADO','CONTAMINADO','DESCARTADO'].includes(p.status));
+  const counts={};
+  [...STATUSES_PF,...STATUSES_AG].forEach(s=>{counts[s]=ps.filter(p=>p.status===s).length;});
+
+  // Recent flushes
+  const allFlushes=[];
+  ps.forEach(p=>{
+    (p.flushes||[]).forEach((f,i)=>{
+      if(f.date) allFlushes.push({date:f.date,yield:parseFloat(f.yield)||0,
+        pcode:p.code,pid:p.id,fnum:i+1,
+        strain:(state.cepas.find(c=>c.code===p.strain)||{}).name||p.strain});
+    });
+  });
+  allFlushes.sort((a,b)=>b.date.localeCompare(a.date));
+  const recent=allFlushes.slice(0,6);
+
+  // Monthly yield (current month)
+  const ym=today().slice(0,7);
+  const monthYield=allFlushes.filter(f=>f.date.startsWith(ym)).reduce((a,f)=>a+f.yield,0);
+  const totalYield=allFlushes.reduce((a,f)=>a+f.yield,0);
+
+  const statusBoxes=[
+    {s:'COLONIZANDO',c:counts['COLONIZANDO']||0},
+    {s:'PRIMORDIANDO',c:counts['PRIMORDIANDO']||0},
+    {s:'FRUCTIFICANDO',c:counts['FRUCTIFICANDO']||0},
+    {s:'DESCANSANDO',c:counts['DESCANSANDO']||0},
+    {s:'ACTIVO',c:counts['ACTIVO']||0},
+    {s:'CONTAMINADO',c:counts['CONTAMINADO']||0},
+  ];
+
+  const selected=ps.filter(p=>p.selected).length;
+  const prints=state.prints.length;
+
+  document.getElementById('resumen-content').innerHTML=`
+    <div class="sum-grid" style="margin-bottom:12px">
+      ${statusBoxes.filter(b=>b.c>0).map(b=>`
+        <div class="sum-box" style="cursor:pointer" onclick="setFilter('status','${b.s}');go('cultivos')">
+          <div class="sum-val">${b.c}</div>
+          <div class="sum-label"><span class="badge s-${b.s}">${sl(b.s)}</span></div>
+        </div>`).join('')}
+    </div>
+    <div class="sum-stats">
+      <div class="sum-stat"><span class="sum-stat-label">ACTIVE</span><span class="sum-stat-val">${active.length}</span></div>
+      <div class="sum-stat"><span class="sum-stat-label">SELECTED</span><span class="sum-stat-val" style="color:var(--selt)">${selected} ★</span></div>
+      <div class="sum-stat"><span class="sum-stat-label">PRINTS</span><span class="sum-stat-val">${prints}</span></div>
+      <div class="sum-stat"><span class="sum-stat-label">YIELD/MO</span><span class="sum-stat-val">${monthYield.toFixed(0)}g</span></div>
+      <div class="sum-stat"><span class="sum-stat-label">YIELD TOTAL</span><span class="sum-stat-val">${totalYield.toFixed(0)}g</span></div>
+      <div class="sum-stat"><span class="sum-stat-label">TOTAL CULT</span><span class="sum-stat-val">${ps.length}</span></div>
+    </div>
+    ${recent.length?`
+      <div class="sh" style="margin-bottom:8px"><span class="sh-title">LATEST HARVESTS</span></div>
+      ${recent.map(f=>`
+        <div class="recent-item" onclick="openPastel('${f.pid}')">
+          <div class="pcode">${esc(f.pcode)}</div>
+          <div><div class="pstrain" style="font-size:17px">${esc(f.strain)}</div><div class="pmeta">flush #${f.fnum} · ${esc(f.date)}</div></div>
+          <div style="font-size:20px;color:var(--txt)">${f.yield.toFixed(1)}g</div>
+        </div>`).join('')}`:''}`;
+}
+
+// ── LIST ───────────────────────────────────────────────────────────────────────
+function renderList(){
+  renderFilters();
+  const q=(document.getElementById('search-input').value||'').toLowerCase();
+  let items=[...state.pasteles];
+  if(filters.cepa!=='ALL')   items=items.filter(p=>p.strain===filters.cepa);
+  if(filters.sus!=='ALL')    items=items.filter(p=>p.substrate===filters.sus);
+  if(filters.status!=='ALL') items=items.filter(p=>p.status===filters.status);
+  if(q) items=items.filter(p=>p.code.toLowerCase().includes(q)||
+    ((state.cepas.find(c=>c.code===p.strain)||{}).name||'').toLowerCase().includes(q));
+  const ord=['COLONIZANDO','PRIMORDIANDO','FRUCTIFICANDO','DESCANSANDO','ACTIVO'];
+  items.sort((a,b)=>{
+    const ai=ord.indexOf(a.status),bi=ord.indexOf(b.status);
+    if(ai!==bi)return(ai<0?99:ai)-(bi<0?99:bi);
+    return(b.dateIn||'').localeCompare(a.dateIn||'');
+  });
+  document.getElementById('pcount').textContent=items.length+' / '+state.pasteles.length;
+  if(!items.length){document.getElementById('pgrid').innerHTML='<div class="empty">NO CULTURES</div>';return;}
+  document.getElementById('pgrid').innerHTML=items.map(p=>{
+    const c=state.cepas.find(c=>c.code===p.strain);
+    const fw=(p.flushes||[]).reduce((a,f)=>a+(parseFloat(f.yield)||0),0);
+    const fn=(p.flushes||[]).length;
+    const ph=(p.photos||[]).length;
+    const d=daysSince(p.dateIn);
+    return `<div class="pcard" onclick="openPastel('${p.id}')">
+      <div>
+        <div class="pcard-top">
+          <span class="pcode">${esc(p.code)}</span>
+          <span class="pstrain">${esc(c?c.name:p.strain)}</span>
+          ${p.selected?'<span class="sel-star">★</span>':''}
+          ${d!==null?`<span class="pdays">day ${d}</span>`:''}
+        </div>
+        <div class="pmeta">${esc(p.dateIn||'—')}${esc(p.parent?' ◄ '+p.parent:'')}${!isAgar(p)&&fn?' · '+fn+'F / '+fw.toFixed(1)+'g':''}${ph?' · '+ph+'▣':''}</div>
+      </div>
+      <div class="badge s-${esc(p.status)}">${esc(sl(p.status))}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderFilters(){
+  const cepas=[...new Set(state.pasteles.map(p=>p.strain))];
+  const types=SUBSTRATES.map(x=>x.v).filter(v=>state.pasteles.some(p=>p.substrate===v));
+  const stats=[...new Set(state.pasteles.map(p=>p.status))];
+  // un filtro activo cuyo valor ya no existe volvería la lista vacía e invisible → reset
+  if(filters.cepa!=='ALL'&&!cepas.includes(filters.cepa))filters.cepa='ALL';
+  if(filters.sus!=='ALL'&&!types.includes(filters.sus))filters.sus='ALL';
+  if(filters.status!=='ALL'&&!stats.includes(filters.status))filters.status='ALL';
+  let h=bf('cepa','ALL','ALL');
+  cepas.forEach(c=>{h+=bf('cepa',c,c);});
+  h+='<span class="fsep">|</span>'+bf('sus','ALL','ALL');
+  types.forEach(v=>{h+=bf('sus',v,SUS_SHORT[v],SUS_NAME[v]);});
+  h+='<span class="fsep">|</span>'+bf('status','ALL','ALL');
+  stats.forEach(x=>{h+=bf('status',x,sl(x).slice(0,4));});
+  document.getElementById('filters').innerHTML=h;
+}
+function bf(t,v,l,title){return `<button class="fb${filters[t]===v?' on':''}"${title?` title="${esc(title)}"`:''} onclick="setFilter(${js(t)},${js(v)})">${esc(l)}</button>`;}
+function setFilter(t,v){filters[t]=v;t==='prCepa'?renderPrints():renderList();}
+
+// ── PASTEL DETAIL ──────────────────────────────────────────────────────────────
+function openPastel(id){
+  currentId=id;confirmingDel=null;expandedFlush=null;editMode=null;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-detalle').classList.add('active');
+  renderDetail(id);
+}
+
+function renderDetail(id){
+  const p=getP(id);if(!p)return;
+  const c=state.cepas.find(c=>c.code===p.strain);
+  const fl=p.flushes||[];
+  const ph=p.photos||[];
+  const tw=fl.reduce((a,f)=>a+(parseFloat(f.yield)||0),0);
+  const d=daysSince(p.dateIn);
+  const agar=isAgar(p);
+  const statuses=agar?STATUSES_AG:STATUSES_PF;
+  const editing=editMode===id;
+
+  // Lineage
+  const chain=buildLineage(p.code);
+  const lineageHtml=chain.length>1?`
+    <div class="lineage">
+      ${chain.map((code,i)=>{
+        const isCur=code===p.code;
+        return `<span class="lin-item${isCur?' current':''}" ${isCur?'':'onclick="openPastelByCode('+js(code)+')"'}">
+          ${esc(code)}</span>${i<chain.length-1?'<span class="lin-arrow">→</span>':''}`;
+      }).join('')}
+    </div>`:'';
+
+  const delUI=confirmingDel===id
+    ?`<div class="del-confirm"><span>SURE?</span>
+       <button class="btn btn-x btn-sm" onclick="confirmDel('${id}')">YES ✕</button>
+       <button class="btn btn-sm" onclick="cancelDel()">NO</button></div>`
+    :`<button class="btn btn-x" onclick="triggerDel('${id}')">DELETE</button>`;
+
+  // fromPrint display
+  const fromPrHtml=p.fromPrint
+    ?`<div class="ibox" style="cursor:pointer" onclick="openPrintByCode(${js(p.fromPrint)})">
+        <div class="ilabel">SOURCE PRINT ↗</div>
+        <div class="ivalue" style="color:var(--gld)">${esc(p.fromPrint)}</div>
+       </div>`:''
+
+  const cepaOpts=state.cepas.map(cx=>`<option value="${esc(cx.code)}"${cx.code===p.strain?' selected':''}>${esc(cx.code)} — ${esc(cx.name)}</option>`).join('');
+  const susOpts=SUBSTRATES.map(s=>`<option value="${s.v}"${s.v===p.substrate?' selected':''}>${s.l}</option>`).join('');
+
+  const editPanel=editing?`
+    <div class="form-box" style="margin-bottom:12px">
+      <div style="font-size:14px;color:var(--dim);letter-spacing:1px;margin-bottom:4px">CODE: <span style="color:var(--gld)">${esc(p.code)}</span> (fixed)</div>
+      <div class="frow">
+        <div class="fg"><label class="fl">STRAIN</label><select id="e-cepa">${cepaOpts}</select></div>
+        <div class="fg"><label class="fl">SUBSTRATE</label><select id="e-sus">${susOpts}</select></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">GENERATION</label><input type="number" id="e-gen" min="0" max="99" value="${esc(p.gen)}"></div>
+        <div class="fg"><label class="fl">INOCULATION DATE</label><input type="date" id="e-fecha" value="${esc(p.dateIn||'')}"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">SOURCE CODE (cake)</label>
+          <input type="text" id="e-ori" value="${esc(p.parent||'')}" placeholder="MR001P1" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="fg"><label class="fl">SOURCE PRINT</label>
+          <input type="text" id="e-print" value="${esc(p.fromPrint||'')}" placeholder="MRPR001.1" oninput="this.value=this.value.toUpperCase()"></div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-a" onclick="saveEdit('${id}')">▓ SAVE</button>
+        <button class="btn" onclick="cancelEdit()">CANCEL</button>
+      </div>
+    </div>`:
+    `${lineageHtml}
+    <div class="info-row">
+      <div class="ibox"><div class="ilabel">INOCULATED</div><div class="ivalue">${esc(p.dateIn||'—')}</div></div>
+      <div class="ibox"><div class="ilabel">SOURCE</div><div class="ivalue">${esc(p.parent||'—')}</div></div>
+      ${fromPrHtml}
+      ${agar?`<div class="ibox"><div class="ilabel">TYPE</div><div class="ivalue">AGAR</div></div>`
+            :`<div class="ibox"><div class="ilabel">FLUSHES</div><div class="ivalue">${fl.length}</div></div>
+               <div class="ibox"><div class="ilabel">TOTAL</div><div class="ivalue">${tw.toFixed(1)}g</div></div>`}
+    </div>
+    <div class="sel-box${p.selected?' active':''}">
+      <button class="sel-toggle" onclick="toggleSel('${id}')">
+        ${p.selected?'★ SELECTED':'☆ MARK'}
+      </button>
+      <input class="sel-crit" type="text" placeholder="selection criteria..."
+        value="${esc(p.selCriteria||'')}" onblur="saveSelCrit('${id}',this.value)"
+        ${!p.selected?'disabled':''}>
+    </div>`;
+
+  const flushesHtml=agar?'':`
+    <div class="subsec-head" style="margin-top:14px">
+      <span class="subsec-title">FLUSHES</span>
+      <button class="btn" onclick="toggleFF()">+ FLUSH</button>
+    </div>
+    <div class="add-flush" id="aff">
+      <div class="frow">
+        <div class="fg"><label class="fl">DATE</label><input type="date" id="ff-fecha"></div>
+        <div class="fg"><label class="fl">FRESH WEIGHT (g)</label><input type="number" id="ff-yield" step="0.1" min="0" placeholder="0.0"></div>
+      </div>
+      <div class="fg"><label class="fl">NOTES</label><textarea id="ff-notas" rows="2" placeholder="flush observations..."></textarea></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-a" onclick="addFlush('${id}')">SAVE</button>
+        <button class="btn" onclick="toggleFF()">CANCEL</button>
+      </div>
+    </div>
+    <div class="flush-list">
+      ${fl.length===0?'<div style="color:var(--dim);font-size:16px;padding:6px">— no flushes —</div>'
+        :fl.map((f,i)=>{
+          const exp=expandedFlush===i+'_'+id;
+          return `<div class="fitem">
+            <div class="fitem-head" onclick="toggleFlush('${id}',${i})">
+              <div class="fnum">#${i+1}</div>
+              <div>
+                <div class="fyield">${esc(f.yield?f.yield+'g (fresh)':'—')}</div>
+                <div class="fdate">${esc(f.date||'—')}</div>
+              </div>
+              <button class="fdel" onclick="event.stopPropagation();delFlush('${id}',${i})">✕</button>
+              <span class="fexp${exp?' open':''}">▼</span>
+            </div>
+            <div class="fitem-body${exp?' open':''}">
+              <div class="fl" style="margin-bottom:4px">FLUSH #${i+1} NOTES</div>
+              <textarea id="fn_${i}" rows="3" onblur="saveFlushNote('${id}',${i},this.value)">${esc(f.notes||'')}</textarea>
+            </div>
+          </div>`;
+        }).join('')}
+    </div>`;
+
+  const histHtml=(()=>{
+    const h=p.history||[],td=today(),END=['FINALIZADO','CONTAMINADO','DESCARTADO'];
+    const plural=n=>n+(n===1?' day':' days');
+    const rows=h.map((e,i)=>{
+      const nx=h[i+1];
+      const day=e.date&&p.dateIn?dayDiff(p.dateIn,e.date):null;
+      let dur='—';
+      if(e.date&&nx&&nx.date)dur=plural(dayDiff(e.date,nx.date));
+      else if(!nx&&END.includes(e.status))dur='final';
+      else if(!nx&&e.date)dur=plural(dayDiff(e.date,td))+' · now';
+      const prev=h.slice(0,i).map(x=>x.date).filter(Boolean).pop()||'';
+      const next=h.slice(i+1).map(x=>x.date).find(Boolean)||'';
+      const max=next&&next<td?next:td;
+      const dateCell=i===0
+        ?`<span class="hdate-fixed">${esc(e.date||'—')}</span>`
+        :`<input type="date" class="hdate" value="${esc(e.date||'')}" min="${esc(prev)}" max="${esc(max)}" onchange="setHistDate('${id}',${i},this.value)">`;
+      return `<div class="hrow">
+        <span class="badge s-${esc(e.status)}">${esc(sl(e.status))}</span>
+        <span class="hday">DAY ${day===null?'—':day}</span>
+        ${dateCell}
+        <span class="hdur">${dur}</span>
+        ${i===0?'<span class="hx"></span>':`<button class="fdel" title="Remove this entry" onclick="delHist('${id}',${i})">✕</button>`}
+      </div>`;
+    }).join('');
+    return `
+    <div class="subsec-head" style="margin-top:14px">
+      <span class="subsec-title">STATUS HISTORY</span>
+      <span style="font-size:15px;color:var(--dim)">${h.length} ${h.length===1?'entry':'entries'}</span>
+    </div>
+    ${h.some(e=>!e.date)?'<div class="hnote">— = date not recorded. Set it to complete the timeline.</div>':''}
+    <div>${rows}</div>`;
+  })();
+
+  document.getElementById('dcontent').innerHTML=`
+    <div class="dhead">
+      <div>
+        <div class="dcode">${esc(p.code)}</div>
+        <div class="dstrain">${esc(c?c.name:p.strain)}</div>
+        <div class="dsub">${esc(SUBSTRATES.find(s=>s.v===p.substrate)?.l.split('—')[0]||p.substrate)} · GEN ${esc(p.gen)}${d!==null?' · day '+d:''}</div>
+      </div>
+      <div style="display:flex;gap:4px">
+        ${editing?'':`<button class="btn" onclick="startEdit('${id}')">EDIT</button>`}
+        ${delUI}
+      </div>
+    </div>
+
+    ${editPanel}
+
+    <div style="margin-bottom:12px">
+      <div class="fl" style="margin-bottom:6px;letter-spacing:1px">STATUS</div>
+      <div class="status-row">
+        ${statuses.map(s=>`<button class="sbtn${p.status===s?' cur':''}" data-s="${s}" onclick="setStatus('${id}','${s}')">${sl(s)}</button>`).join('')}
+      </div>
+    </div>
+
+    <div class="notebox">
+      <div class="notebox-label">NOTES</div>
+      <textarea id="nta" onblur="saveNotes('${id}')">${esc(p.notes||'')}</textarea>
+    </div>
+
+    <div class="photo-section">
+      <div class="subsec-head">
+        <span class="subsec-title">PHOTOS</span>
+        <span style="font-size:15px;color:var(--dim)">${ph.length} img</span>
+      </div>
+      <div class="photo-grid">
+        ${ph.map((img,i)=>`
+          <div class="photo-thumb" onclick="openLB('${id}',${i})">
+            <img src="${esc(img.data)}" alt="">
+            <button class="photo-del" onclick="event.stopPropagation();delPhoto('${id}',${i})">✕</button>
+          </div>`).join('')}
+        <div class="photo-add" onclick="openPhotoInput('${id}')">+</div>
+      </div>
+    </div>
+
+    ${flushesHtml}
+
+    ${histHtml}`;
+
+  if(!agar) document.getElementById('ff-fecha').value=today();
+}
+
+function buildLineage(code,visited=[]){
+  if(!code||visited.includes(code))return[];
+  const p=state.pasteles.find(p=>p.code===code);
+  if(!p||!p.parent)return[code];
+  return[...buildLineage(p.parent,[...visited,code]),code];
+}
+
+function openPastelByCode(code){
+  const p=state.pasteles.find(p=>p.code===code);
+  if(p)openPastel(p.id);
+}
+
+// DELETE
+function triggerDel(id){confirmingDel=id;renderDetail(id);}
+function cancelDel(){confirmingDel=null;renderDetail(currentId);}
+function confirmDel(id){state.pasteles=state.pasteles.filter(p=>p.id!==id);confirmingDel=null;save();go('cultivos');}
+
+// EDIT
+function startEdit(id){editMode=id;renderDetail(id);}
+function cancelEdit(){editMode=null;renderDetail(currentId);}
+function saveEdit(id){
+  const p=getP(id);if(!p)return;
+  p.strain   =document.getElementById('e-cepa').value;
+  p.substrate=document.getElementById('e-sus').value;
+  p.gen      =toGen(document.getElementById('e-gen').value,p.gen);
+  p.dateIn   =document.getElementById('e-fecha').value;
+  if(p.history&&p.history[0])p.history[0].date=p.dateIn||null;
+  p.parent   =document.getElementById('e-ori').value.trim()||null;
+  p.fromPrint=document.getElementById('e-print').value.trim()||null;
+  editMode=null;save();renderDetail(id);
+}
+
+// PRINT LINK
+function openPrintByCode(code){
+  const pr=state.prints.find(p=>p.code===code);
+  if(pr)openPrint(pr.id);
+  else alert('Print '+code+' not found in the registry');
+}
+
+// SELECTION
+function toggleSel(id){const p=getP(id);if(!p)return;p.selected=!p.selected;save();renderDetail(id);}
+function saveSelCrit(id,v){const p=getP(id);if(!p)return;p.selCriteria=v;save();}
+
+// STATUS & NOTES
+function setStatus(id,s){
+  const p=getP(id);if(!p||p.status===s)return;
+  p.status=s;(p.history=p.history||[]).push({status:s,date:today()});
+  save();renderDetail(id);
+}
+function setHistDate(id,i,v){
+  const p=getP(id);if(!p||!p.history||i<1||!p.history[i])return;
+  if(v){
+    const prev=p.history.slice(0,i).map(e=>e.date).filter(Boolean).pop();
+    const next=p.history.slice(i+1).map(e=>e.date).find(Boolean);
+    if((prev&&v<prev)||(next&&v>next)||v>today()){alert('The date must fall between the previous and next status changes, and cannot be in the future');renderDetail(id);return;}
+  }
+  p.history[i].date=v||null;save();renderDetail(id);
+}
+function delHist(id,i){
+  const p=getP(id);if(!p||!p.history||i<1||!p.history[i])return;
+  p.history.splice(i,1);p.status=p.history[p.history.length-1].status; // el estado actual es siempre la última entrada
+  save();renderDetail(id);
+}
+function saveNotes(id){const p=getP(id);if(!p)return;p.notes=document.getElementById('nta').value;save();}
+
+// FLUSHES
+function toggleFF(){document.getElementById('aff').classList.toggle('open');}
+function toggleFlush(id,i){
+  const key=i+'_'+id;
+  expandedFlush=expandedFlush===key?null:key;
+  renderDetail(id);
+}
+function addFlush(id){
+  const p=getP(id);if(!p)return;
+  if(!p.flushes)p.flushes=[];
+  p.flushes.push({date:document.getElementById('ff-fecha').value,yield:document.getElementById('ff-yield').value,notes:document.getElementById('ff-notas').value});
+  save();renderDetail(id);
+}
+function delFlush(id,i){const p=getP(id);if(!p)return;p.flushes.splice(i,1);expandedFlush=null;save();renderDetail(id);}
+function saveFlushNote(id,i,v){const p=getP(id);if(!p||!p.flushes||!p.flushes[i])return;p.flushes[i].notes=v;save();}
+
+// PHOTOS
+function openPhotoInput(id){pendingPhotoId=id;document.getElementById('photo-input').value='';document.getElementById('photo-input').click();}
+function handlePhoto(e){
+  const file=e.target.files[0];if(!file||!pendingPhotoId)return;
+  resizeImg(file,data=>{const p=getP(pendingPhotoId);if(!p)return;if(!p.photos)p.photos=[];p.photos.push({data,date:today()});save();renderDetail(pendingPhotoId);});
+}
+function delPhoto(id,i){const p=getP(id);if(!p)return;p.photos.splice(i,1);save();renderDetail(id);}
+function openLB(id,i){const p=getP(id);if(!p||!p.photos||!p.photos[i])return;document.getElementById('lb-img').src=p.photos[i].data;document.getElementById('lightbox').classList.add('open');}
+function closeLB(){document.getElementById('lightbox').classList.remove('open');document.getElementById('lb-img').src='';}
+
+const PHOTO_MAX=512,PHOTO_Q=0.78; // shared by cultures and prints
+function resizeImg(file,cb){const maxPx=PHOTO_MAX,q=PHOTO_Q;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const scale=Math.min(maxPx/img.width,maxPx/img.height,1);
+      const w=Math.round(img.width*scale),h=Math.round(img.height*scale);
+      const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);cb(cv.toDataURL('image/jpeg',q));
+    };img.onerror=()=>alert('Could not read the image');img.src=e.target.result;
+  };reader.readAsDataURL(file);
+}
+
+// ── PRINTS ─────────────────────────────────────────────────────────────────────
+function renderPrFilters(){
+  const strains=[...new Set(state.prints.map(p=>p.strain))];
+  if(filters.prCepa!=='ALL'&&!strains.includes(filters.prCepa))filters.prCepa='ALL';
+  document.getElementById('pr-filters').innerHTML=strains.length?bf('prCepa','ALL','ALL')+strains.map(c=>bf('prCepa',c,c)).join(''):'';
+}
+function renderPrints(){
+  renderPrFilters();
+  const q=(document.getElementById('pr-search').value||'').toLowerCase();
+  let items=[...state.prints];
+  if(filters.prCepa!=='ALL')items=items.filter(p=>p.strain===filters.prCepa);
+  if(q)items=items.filter(p=>p.code.toLowerCase().includes(q)||
+    (p.originCode||'').toLowerCase().includes(q)||
+    ((state.cepas.find(c=>c.code===p.strain)||{}).name||'').toLowerCase().includes(q));
+  items.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  document.getElementById('prcount').textContent=items.length+' / '+state.prints.length;
+  if(!items.length&&state.prints.length){document.getElementById('prgrid').innerHTML='<div class="empty">NO MATCHES</div>';return;}
+  if(!items.length){document.getElementById('prgrid').innerHTML='<div class="empty">NO PRINTS<br><span style="font-size:16px">USE + NEW → PRINT</span></div>';return;}
+  document.getElementById('prgrid').innerHTML=items.map(p=>{
+    const c=state.cepas.find(c=>c.code===p.strain);
+    return `<div class="prcard" onclick="openPrint('${p.id}')">
+      <div>
+        <div class="pcard-top">
+          <span class="pcode">${esc(p.code)}</span>
+          <span class="pstrain">${esc(c?c.name:p.strain)}</span>
+        </div>
+        <div class="pmeta">◄ ${esc(p.originCode)} · ${esc(p.date||'—')}${esc(p.storage?' · '+p.storage:'')}</div>
+      </div>
+      <div class="badge s-${esc(p.status)}">${esc(sl(p.status))}</div>
+    </div>`;
+  }).join('');
+}
+
+function openPrint(id){
+  currentPrId=id;confirmingPrDel=null;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-pdetalle').classList.add('active');
+  renderPrDetail(id);
+}
+
+function renderPrDetail(id){
+  const p=getPr(id);if(!p)return;
+  const c=state.cepas.find(c=>c.code===p.strain);
+  const delUI=confirmingPrDel===id
+    ?`<div class="del-confirm"><span>SURE?</span>
+       <button class="btn btn-x btn-sm" onclick="confirmPrDel('${id}')">YES ✕</button>
+       <button class="btn btn-sm" onclick="cancelPrDel()">NO</button></div>`
+    :`<button class="btn btn-x" onclick="triggerPrDel('${id}')">DELETE</button>`;
+
+  document.getElementById('prcontent').innerHTML=`
+    <div class="dhead">
+      <div>
+        <div class="dcode">${esc(p.code)}</div>
+        <div class="dstrain">${esc(c?c.name:p.strain)}</div>
+        <div class="dsub">PRINT · GEN ${esc(p.gen)} · ◄ ${esc(p.originCode)}</div>
+      </div>
+      <div>${delUI}</div>
+    </div>
+
+    <div class="info-row">
+      <div class="ibox"><div class="ilabel">DATE</div><div class="ivalue">${esc(p.date||'—')}</div></div>
+      <div class="ibox"><div class="ilabel">STORAGE</div><div class="ivalue">${esc(p.storage||'—')}</div></div>
+      <div class="ibox"><div class="ilabel">GENERATION</div><div class="ivalue">${esc(p.gen)}</div></div>
+      <div class="ibox"><div class="ilabel">STATUS</div><div class="ivalue"><span class="badge s-${esc(p.status)}">${esc(sl(p.status))}</span></div></div>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <div class="fl" style="margin-bottom:6px;letter-spacing:1px">STATUS</div>
+      <div class="status-row">
+        ${STATUSES_PR.map(s=>`<button class="sbtn${p.status===s?' cur':''}" data-s="${s}" onclick="setPrStatus('${id}','${s}')">${sl(s)}</button>`).join('')}
+      </div>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <div class="fl" style="margin-bottom:4px">STORAGE</div>
+      <input type="text" id="pr-storage" value="${esc(p.storage||'')}" onblur="savePrStorage('${id}',this.value)" placeholder="envelope 1, jar 3...">
+    </div>
+
+    <div class="notebox">
+      <div class="notebox-label">NOTES</div>
+      <textarea id="prta" onblur="savePrNotes('${id}')">${esc(p.notes||'')}</textarea>
+    </div>
+
+    <div class="photo-section">
+      <div class="subsec-head">
+        <span class="subsec-title">PHOTOS</span>
+        <span style="font-size:15px;color:var(--dim)">${(p.photos||[]).length} img</span>
+      </div>
+      <div class="photo-grid">
+        ${(p.photos||[]).map((img,i)=>`
+          <div class="photo-thumb" onclick="openPrLB('${id}',${i})">
+            <img src="${esc(img.data)}" alt="">
+            <button class="photo-del" onclick="event.stopPropagation();delPrPhoto('${id}',${i})">✕</button>
+          </div>`).join('')}
+        <div class="photo-add" onclick="openPrPhotoInput('${id}')">+</div>
+      </div>
+    </div>
+
+    <div class="subsec-head" style="margin-top:14px">
+      <span class="subsec-title">DERIVED CAKES</span>
+      <span style="font-size:15px;color:var(--dim)">${state.pasteles.filter(x=>x.fromPrint===p.code).length}</span>
+    </div>
+    ${(()=>{
+      const derived=state.pasteles.filter(x=>x.fromPrint===p.code);
+      if(!derived.length) return '<div style="color:var(--dim);font-size:16px;padding:6px">— none registered —<br><span style="font-size:14px">When creating a cake, enter this print in the SOURCE PRINT field</span></div>';
+      return derived.map(x=>{
+        const cx=state.cepas.find(c=>c.code===x.strain);
+        const d=daysSince(x.dateIn);
+        return `<div class="pcard" onclick="openPastel('${x.id}')">
+          <div>
+            <div class="pcard-top">
+              <span class="pcode">${esc(x.code)}</span>
+              <span class="pstrain">${esc(cx?cx.name:x.strain)}</span>
+              ${x.selected?'<span class="sel-star">★</span>':''}
+              ${d!==null?`<span class="pdays">day ${d}</span>`:''}
+            </div>
+            <div class="pmeta">${esc(x.dateIn||'—')}</div>
+          </div>
+          <div class="badge s-${esc(x.status)}">${esc(sl(x.status))}</div>
+        </div>`;
+      }).join('');
+    })()}
+  `;
+}
+
+function triggerPrDel(id){confirmingPrDel=id;renderPrDetail(id);}
+function cancelPrDel(){confirmingPrDel=null;renderPrDetail(currentPrId);}
+function confirmPrDel(id){state.prints=state.prints.filter(p=>p.id!==id);confirmingPrDel=null;save();go('prints');}
+function setPrStatus(id,s){const p=getPr(id);if(!p)return;p.status=s;save();renderPrDetail(id);}
+function savePrNotes(id){const p=getPr(id);if(!p)return;p.notes=document.getElementById('prta').value;save();}
+function savePrStorage(id,v){const p=getPr(id);if(!p)return;p.storage=v;save();}
+function openPrPhotoInput(id){pendingPrPhotoId=id;document.getElementById('pphoto-input').value='';document.getElementById('pphoto-input').click();}
+function handlePrintPhoto(e){
+  const file=e.target.files[0];if(!file||!pendingPrPhotoId)return;
+  resizeImg(file,data=>{const p=getPr(pendingPrPhotoId);if(!p)return;(p.photos=p.photos||[]).push({data,date:today()});save();renderPrDetail(pendingPrPhotoId);});
+}
+function delPrPhoto(id,i){const p=getPr(id);if(!p||!p.photos)return;p.photos.splice(i,1);save();renderPrDetail(id);}
+function openPrLB(id,i){const p=getPr(id);if(!p||!p.photos||!p.photos[i])return;document.getElementById('lb-img').src=p.photos[i].data;document.getElementById('lightbox').classList.add('open');}
+
+// ── NUEVO ──────────────────────────────────────────────────────────────────────
+function initNuevo(){
+  document.getElementById('nuevo-choice').style.display='grid';
+  document.getElementById('nuevo-form-container').innerHTML='';
+}
+
+function showNuevoForm(type){
+  document.getElementById('nuevo-choice').style.display='none';
+  if(type==='pastel') buildPastelForm();
+  else buildPrintForm();
+}
+
+function buildPastelForm(){
+  const cepaOpts=state.cepas.map(c=>`<option value="${esc(c.code)}">${esc(c.code)} — ${esc(c.name)}</option>`).join('');
+  const susOpts=SUBSTRATES.map(s=>`<option value="${s.v}">${s.l}</option>`).join('');
+  document.getElementById('nuevo-form-container').innerHTML=`
+    <div class="form-box">
+      <div>
+        <div class="fl" style="margin-bottom:6px">GENERATED CODE</div>
+        <div class="code-preview" id="cpreview">——————</div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">STRAIN</label>
+          <select id="n-cepa" onchange="updatePreview()">${cepaOpts}</select></div>
+        <div class="fg"><label class="fl">SUBSTRATE</label>
+          <select id="n-sus" onchange="updatePreview()">${susOpts}</select></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">GENERATION</label>
+          <input type="number" id="n-gen" min="0" max="99" value="1" oninput="updatePreview()"></div>
+        <div class="fg"><label class="fl">INOCULATION DATE</label>
+          <input type="date" id="n-fecha" value="${today()}"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">SOURCE CODE (cake)</label>
+          <input type="text" id="n-ori" placeholder="e.g. MR001P2" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="fg"><label class="fl">SOURCE PRINT</label>
+          <input type="text" id="n-print" placeholder="e.g. MRPR001.1" oninput="this.value=this.value.toUpperCase()"></div>
+      </div>
+      <div class="fg"><label class="fl">NOTES</label>
+        <textarea id="n-notas" rows="2" placeholder="observations..."></textarea></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-a" onclick="crearPastel()">▓ CREATE</button>
+        <button class="btn" onclick="initNuevo()">◄ BACK</button>
+      </div>
+    </div>`;
+  updatePreview();
+}
+
+function buildPrintForm(){
+  const cepaOpts=state.cepas.map(c=>`<option value="${esc(c.code)}">${esc(c.code)} — ${esc(c.name)}</option>`).join('');
+  document.getElementById('nuevo-form-container').innerHTML=`
+    <div class="form-box">
+      <div>
+        <div class="fl" style="margin-bottom:6px">GENERATED CODE</div>
+        <div class="code-preview" id="nf-prpreview">——————</div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">STRAIN</label>
+          <select id="nf-pr-cepa" onchange="updatePrPreview()">${cepaOpts}</select></div>
+        <div class="fg"><label class="fl">GENERATION</label>
+          <input type="number" id="nf-pr-gen" min="0" max="99" value="1" oninput="updatePrPreview()"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">SOURCE CAKE *</label>
+          <input type="text" id="nf-pr-ori" placeholder="e.g. MR001P1" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="fg"><label class="fl">DATE</label>
+          <input type="date" id="nf-pr-fecha" value="${today()}"></div>
+      </div>
+      <div class="fg"><label class="fl">STORAGE</label>
+        <input type="text" id="nf-pr-storage" placeholder="envelope 1, jar 2..."></div>
+      <div class="fg"><label class="fl">NOTES</label>
+        <textarea id="nf-pr-notas" rows="2" placeholder="observations..."></textarea></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-a" onclick="crearPrint()">▤ CREATE</button>
+        <button class="btn" onclick="initNuevo()">◄ BACK</button>
+      </div>
+    </div>`;
+  updatePrPreview();
+}
+
+function nextNum(strain,arr,prefix=''){
+  const re=new RegExp('^'+(strain+prefix).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(\\d+)');
+  return arr.reduce((m,p)=>{const x=re.exec(p.code);return x?Math.max(m,+x[1]):m;},0)+1;
+}
+
+function updatePreview(){
+  const cepa=document.getElementById('n-cepa')?.value;
+  const sus=document.getElementById('n-sus')?.value||'P';
+  const gen=toGen(document.getElementById('n-gen')?.value);
+  if(!cepa){document.getElementById('cpreview').textContent='——————';return;}
+  const num=nextNum(cepa,state.pasteles);
+  document.getElementById('cpreview').textContent=cepa+pad(num)+sus+gen;
+}
+
+function updatePrPreview(){
+  const cepa=document.getElementById('nf-pr-cepa')?.value;
+  const gen=toGen(document.getElementById('nf-pr-gen')?.value);
+  if(!cepa){const el=document.getElementById('nf-prpreview');if(el)el.textContent='——————';return;}
+  const num=nextNum(cepa,state.prints,'PR');
+  const el=document.getElementById('nf-prpreview');if(el)el.textContent=cepa+'PR'+pad(num)+'.'+gen;
+}
+
+function crearPastel(){
+  const strain=document.getElementById('n-cepa').value;
+  const sus=document.getElementById('n-sus').value;
+  const gen=toGen(document.getElementById('n-gen').value);
+  const dateIn=document.getElementById('n-fecha').value;
+  const parent   =document.getElementById('n-ori').value.trim();
+  const fromPrint=document.getElementById('n-print').value.trim();
+  const notes    =document.getElementById('n-notas').value.trim();
+  if(!strain){alert('Select a strain');return;}
+  const num=nextNum(strain,state.pasteles);
+  const defStatus=sus==='A'?'ACTIVO':'COLONIZANDO';
+  state.pasteles.push({id:uid(),code:strain+pad(num)+sus+gen,strain,substrate:sus,gen,dateIn,parent:parent||null,fromPrint:fromPrint||null,status:defStatus,notes,flushes:[],photos:[],selected:false,selCriteria:'',history:[{status:defStatus,date:dateIn||null}]});
+  save();go('cultivos');
+}
+
+function crearPrint(){
+  const strain    =document.getElementById('nf-pr-cepa').value;
+  const gen       =toGen(document.getElementById('nf-pr-gen').value);
+  const originCode=document.getElementById('nf-pr-ori').value.trim();
+  const date      =document.getElementById('nf-pr-fecha').value;
+  const storage   =document.getElementById('nf-pr-storage').value.trim();
+  const notes     =document.getElementById('nf-pr-notas').value.trim();
+  if(!strain){alert('Select a strain');return;}
+  if(!originCode){alert('Enter the source cake code');return;}
+  const num=nextNum(strain,state.prints,'PR');
+  state.prints.push({id:uid(),code:strain+'PR'+pad(num)+'.'+gen,strain,gen,originCode,date,storage:storage||null,status:'FRESCO',notes,photos:[]});
+  save();go('prints');
+}
+
+// ── STRAINS ──────────────────────────────────────────────────────────────────────
+function renderCepas(){
+  const list=document.getElementById('cepa-list');
+  if(!state.cepas.length){list.innerHTML='<div class="empty">NO STRAINS</div>';return;}
+  list.innerHTML=state.cepas.map(c=>{
+    const cnt=state.pasteles.filter(p=>p.strain===c.code).length;
+    const prcnt=state.prints.filter(p=>p.strain===c.code).length;
+    return `<div class="citem">
+      <div><div class="ccode">${esc(c.code)}</div><div class="cname">${esc(c.name)}</div></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="ccnt">${cnt}P ${prcnt}PR</div>
+        <button class="btn btn-x btn-sm" onclick="delCepa(${js(c.code)})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function addCepa(){
+  const code=document.getElementById('c-code').value.trim().toUpperCase();
+  const name=document.getElementById('c-name').value.trim();
+  if(!code||!name){alert('Code and name are required');return;}
+  if(!/^[A-Z0-9]+$/.test(code)){alert('Code: letters and numbers only');return;}
+  if(state.cepas.find(c=>c.code===code)){alert('Code already exists');return;}
+  state.cepas.push({code,name});save();
+  document.getElementById('c-code').value='';document.getElementById('c-name').value='';
+  renderCepas();
+}
+function delCepa(code){
+  const cnt=state.pasteles.filter(p=>p.strain===code).length;
+  if(cnt>0){alert('Delete the cultures of this strain first ('+cnt+')');return;}
+  state.cepas=state.cepas.filter(c=>c.code!==code);save();renderCepas();
+}
+
+// ── EXPORT / IMPORT ────────────────────────────────────────────────────────────
+function exportData(){
+  const json=JSON.stringify(state,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='mycolab_'+today()+'.json';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const parsed=JSON.parse(ev.target.result);
+      if(!Array.isArray(parsed.pasteles)||!Array.isArray(parsed.cepas))throw new Error('Invalid format');
+      const ph=parsed.pasteles.reduce((a,p)=>a+(p.photos||[]).length,0);
+      const prph=(parsed.prints||[]).reduce((a,p)=>a+(Array.isArray(p.photos)?p.photos.length:p.photo?1:0),0);
+      pendingImport=parsed;
+      document.getElementById('imp-info').textContent=
+        parsed.pasteles.length+' cultures · '+(parsed.prints||[]).length+' prints · '+
+        parsed.cepas.length+' strains · '+(ph+prph)+' photos';
+      document.getElementById('imp-overlay').classList.add('open');
+    }catch(err){alert('Import error: '+err.message);}
+  };
+  reader.readAsText(file);e.target.value='';
+}
+document.getElementById('imp-yes').onclick=async()=>{
+  if(!pendingImport)return;
+  state=normalize(pendingImport);
+  pendingImport=null;await save();
+  document.getElementById('imp-overlay').classList.remove('open');
+  go('cultivos');
+};
+document.getElementById('imp-no').onclick=()=>{
+  pendingImport=null;document.getElementById('imp-overlay').classList.remove('open');
+};
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+(async()=>{
+  navigator.storage?.persist?.();
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLB();});
+  await load();
+  document.getElementById('loading').style.display='none';
+  go('cultivos');
+})();
+</script>
+</body>
+</html>
