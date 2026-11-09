@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ichimatsu</title>
+<style>
+:root{--p:#fff;--k:#000;--f:"Pixelify Sans","Silkscreen","Courier New",ui-monospace,Menlo,monospace;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--p:#000;--k:#fff;color-scheme:dark}}
+:root[data-theme=dark]{--p:#000;--k:#fff;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background-color:var(--p);background-image:conic-gradient(var(--k) 25%,#0000 0 50%,var(--k) 0 75%,#0000 0);background-size:4px 4px;color:var(--k);font:400 15px/1.2 var(--f);overflow:hidden;-webkit-font-smoothing:none}
+:focus-visible{outline:2px dashed var(--k);outline-offset:2px}
+button,select,input{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.app{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:14px;height:100%;padding:14px}
+.box{background:var(--p);border:2px solid var(--k);box-shadow:4px 4px 0 var(--k)}
+.tools{display:grid;grid-template-columns:repeat(2,40px);grid-auto-rows:40px;gap:4px;padding:6px;align-content:start;align-self:start}
+.tools hr{grid-column:1/-1;border:0;border-top:2px solid var(--k);margin:2px 0}
+.b,.bt,.sw{background:var(--p);color:var(--k);border:2px solid var(--k);cursor:pointer;border-radius:0}
+.b{display:grid;place-items:center;padding:0}
+.b svg,.bt svg{fill:currentColor;shape-rendering:crispEdges}.b svg{width:24px;height:24px}
+.b:hover:not(:disabled),.sw:hover{box-shadow:2px 2px 0 var(--k)}
+.b[aria-pressed=true]{background:var(--k);color:var(--p)}
+.bt{padding:0 10px;height:30px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.bt svg{width:16px;height:16px}
+.bt:hover:not(:disabled){background:var(--k);color:var(--p)}
+:disabled{opacity:.3;cursor:default}
+select.bt{padding:0 4px;appearance:none;-webkit-appearance:none}
+input[type=number]{width:64px;height:30px;background:var(--p);border:2px solid var(--k);padding:0 4px;border-radius:0;-moz-appearance:textfield}
+.win{grid-column:2;display:flex;flex-direction:column;min-width:0;min-height:0}
+.title{display:flex;align-items:center;gap:6px;padding:5px 8px;border-bottom:2px solid var(--k);font-weight:600}
+.title i{flex:1;min-width:8px;height:10px;background:repeating-linear-gradient(var(--k) 0 2px,#0000 0 4px)}
+.n{background:var(--p);padding:0 6px}.gp{display:flex;gap:6px}
+.mw{position:relative}
+.menu{position:absolute;right:0;top:calc(100% + 6px);z-index:30;min-width:250px;max-height:70vh;overflow:auto;background:var(--p);border:2px solid var(--k);box-shadow:4px 4px 0 var(--k);padding:4px}
+.menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:7px 10px;cursor:pointer;white-space:nowrap}
+.menu button:hover,.menu button:focus-visible{background:var(--k);color:var(--p);outline:none}
+.menu hr{border:0;border-top:2px solid var(--k);margin:4px 0}
+.stage{flex:1;display:flex;overflow:auto;min-height:0;padding:20px;background-image:radial-gradient(var(--k) 1px,#0000 1px);background-size:8px 8px}
+.board{position:relative;margin:auto;flex:none;border:2px solid var(--k);box-shadow:4px 4px 0 var(--k);background:#fff}
+#cv{display:block;image-rendering:pixelated;cursor:crosshair;touch-action:none}
+.pan #cv{cursor:grab}.panning #cv{cursor:grabbing}
+#gv{position:absolute;inset:0;pointer-events:none}
+.foot{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:5px 8px;border-top:2px solid var(--k)}
+.foot .b{width:28px;height:28px}.foot .b svg{width:16px;height:16px}
+.sp{flex:1}#pos{min-width:70px}
+.pats{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:6px 10px}
+.ind{position:relative;width:40px;height:32px;flex:none;cursor:pointer;background:none;border:0}
+.ind canvas{position:absolute;width:20px;height:20px;border:2px solid var(--k);image-rendering:pixelated}
+#cbg{right:0;bottom:0}#cfg{left:0;top:0;box-shadow:2px 2px 0 var(--k)}
+#pl{display:flex;gap:6px;flex:1;padding:5px 4px;overflow-x:auto;min-width:0}
+.sw{width:24px;height:24px;padding:0;flex:none}
+.sw canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
+.sw[data-r=f]{outline:2px solid var(--k);outline-offset:2px}.sw[data-r=g]{outline:2px dotted var(--k);outline-offset:2px}.sw[data-r=f][data-b]{outline:4px double var(--k)}
+.pb{display:flex;gap:6px;flex:none}.pb .bt{height:26px;padding:0 8px}
+dialog{background:var(--p);color:var(--k);border:2px solid var(--k);box-shadow:6px 6px 0 var(--k);padding:14px;margin:auto;width:min(92vw,400px);font:inherit}
+dialog::backdrop{background:rgba(128,128,128,.55)}
+dialog h3{font-weight:600;margin-bottom:10px}
+dialog small{display:block;margin-top:8px}
+.r{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}.r.end{justify-content:flex-end}
+#eg{display:grid;gap:4px}#eg .b{width:44px;height:44px}#eg.s .b{width:28px;height:28px}
+.nb{width:auto;padding:0 10px;height:30px}
+#epv{width:96px;height:96px;border:2px solid var(--k);image-rendering:pixelated;flex:none}
+#ipv{display:block;margin:0 auto;border:2px solid var(--k);image-rendering:pixelated;background:#fff}
+input[type=range]{flex:1;accent-color:var(--k);min-width:0}
+@media(max-width:760px){
+.app{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto;gap:10px;padding:8px}
+.win{grid-column:1;grid-row:1}
+.tools{grid-row:2;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:40px;grid-template-rows:40px;overflow-x:auto;align-self:stretch}
+.tools hr{width:0;height:100%;border:0;border-left:2px solid var(--k);grid-column:auto;margin:0 2px}
+.pats{grid-row:3}.t,.n{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="tools box" id="tools" aria-label="Herramientas"></nav>
+<main class="win box">
+ <div class="title">
+  <div class="gp"><button class="bt" id="bun" title="Deshacer (Ctrl+Z)"></button><button class="bt" id="bre" title="Rehacer (Ctrl+Shift+Z)"></button></div>
+  <i></i><span class="n">Ichimatsu</span><i></i>
+  <div class="mw"><button class="bt" id="mb" aria-haspopup="menu" aria-expanded="false"></button><div class="menu" id="menu" role="menu" hidden></div></div>
+ </div>
+ <div class="stage" id="stage"><div class="board"><canvas id="cv"></canvas><div id="gv"></div></div></div>
+ <div class="foot">
+  <span id="pos"></span>
+  <select class="bt" id="nsel" aria-label="Tamaños predefinidos"><option value="32">32 × 32</option><option value="48">48 × 48</option><option value="64">64 × 64</option><option value="96">96 × 96</option><option value="128">128 × 128</option><option value="256">256 × 256</option><option value="512">512 × 512</option><option value="">Personalizado</option></select>
+  <input type="number" id="wi" min="1" max="512" aria-label="Ancho"><span>×</span><input type="number" id="hi" min="1" max="512" aria-label="Alto">
+  <button class="bt" id="ap" title="Aplicar tamaño (máx. 512)">Aplicar</button>
+  <span class="sp" id="msg" role="status"></span>
+  <button class="b" id="zo" title="Alejar (-)" aria-label="Alejar"></button><span id="zl"></span><button class="b" id="zi" title="Acercar (+)" aria-label="Acercar"></button>
+ </div>
+</main>
+<section class="pats box" aria-label="Tramas">
+ <button class="ind" id="ind" title="Intercambiar primer plano y fondo (X)" aria-label="Intercambiar tramas"><canvas id="cbg" width="8" height="8"></canvas><canvas id="cfg" width="8" height="8"></canvas></button>
+ <div id="pl"></div>
+ <div class="pb"><button class="bt" id="pnew" title="Crear una trama a partir de la actual">+ Nueva</button><button class="bt" id="pedit" title="Editar la trama personalizada seleccionada">Editar</button></div>
+</section>
+</div>
+
+<dialog id="dpat"><h3>Trama personalizada</h3>
+ <div class="r"><span>Tamaño</span><button class="b nb" data-n="4">4×4</button><button class="b nb" data-n="8">8×8</button></div>
+ <div class="r"><div id="eg"></div><canvas id="epv" width="32" height="32" aria-label="Vista previa"></canvas></div>
+ <small>Celda activa = píxel negro. La trama se repite en mosaico.</small>
+ <div class="r end"><button class="bt" id="pinv">Invertir</button><button class="bt" id="pdel">Eliminar</button><button class="bt" id="pcan">Cancelar</button><button class="bt" id="psave">Añadir</button></div>
+</dialog>
+<dialog id="dimg"><h3>Importar imagen</h3>
+ <canvas id="ipv"></canvas><small id="idim"></small>
+ <div class="r"><label for="imeth">Método</label><select class="bt" id="imeth"><option value="b">Trama ordenada 4×4</option><option value="f">Floyd–Steinberg</option><option value="t">Umbral</option></select></div>
+ <div class="r"><label for="ithr">Umbral</label><input type="range" id="ithr" min="0" max="255" value="128"></div>
+ <div class="r"><label><input type="checkbox" id="iinv"> Invertir</label></div>
+ <small>Sustituye el lienzo (se puede deshacer). Más de 512 px se reduce.</small>
+ <div class="r end"><button class="bt" id="icn">Cancelar</button><button class="bt" id="iok">Importar</button></div>
+</dialog>
+<dialog id="dnew"><h3>Nuevo lienzo</h3>
+ <div class="r"><label for="nw">Ancho</label><input type="number" id="nw" min="1" max="512"><label for="nh">Alto</label><input type="number" id="nh" min="1" max="512"></div>
+ <div class="r"><label for="nf">Relleno</label><select class="bt" id="nf"><option value="w">Blanco</option><option value="k">Negro</option><option value="b">Trama de fondo</option></select></div>
+ <small>Máximo 512 px. Se puede deshacer.</small>
+ <div class="r end"><button class="bt" id="ncn">Cancelar</button><button class="bt" id="nok">Crear</button></div>
+</dialog>
+<input type="file" id="fi" accept="image/*" hidden><input type="file" id="fj" accept=".json,application/json" hidden>
+
+<script>
+const $=s=>document.querySelector(s),MAX=512,S=$('#stage'),cv=$('#cv'),ctx=cv.getContext('2d'),PL=$('#pl'),MENU=$('#menu'),MB=$('#mb'),tools=$('#tools');
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!==undefined)e.innerHTML=h;return e};
+const press=(b,v)=>b.setAttribute('aria-pressed',!!v);
+const clamp=(v,o)=>{v=Math.round(+v);return v>=1?Math.min(MAX,v):o};
+
+/* iconos 8x8 (8 bytes cada uno) */
+const IC={pencil:'060D1A346870C000',eraser:'1C2A55AA54281000',fill:'18183C3C7E7E7E3C',line:'0102040810204080',rect:'FF818181818181FF',hand:'2A2A7FFFFF7E3C3C',
+ mx:'185ADBDBDBDB5A18',my:'3C7E00FFFF007E3C',undo:'10307E3111111E00',redo:'080C7E8C88887800',grid:'FF9292FF9292FF00',clear:'3CFF7E5A5A5A7E00',
+ plus:'0018187E7E181800',minus:'0000007E7E000000',down:'00007E3C18000000'};
+const svg=k=>{let d='';for(let i=0;i<64;i++)if(parseInt(IC[k].substr(i>>3<<1,2),16)>>(7-i%8)&1)d+='M'+i%8+' '+(i>>3)+'h1v1h-1z';return'<svg viewBox="0 0 8 8" aria-hidden="true"><path d="'+d+'"/></svg>'};
+$('#zo').innerHTML=svg('minus');$('#zi').innerHTML=svg('plus');
+$('#bun').innerHTML=svg('undo')+'<span class="t">Deshacer</span>';$('#bre').innerHTML=svg('redo')+'<span class="t">Rehacer</span>';
+$('#bun').setAttribute('aria-label','Deshacer');$('#bre').setAttribute('aria-label','Rehacer');MB.innerHTML='Menú'+svg('down');
+
+/* ---------- tramas: {size:4|8, bits:'0/1…'} ---------- */
+const NAMES=['Blanco','6%','12%','25%','37%','50%','62%','75%','87%','Negro','Líneas horizontales','Líneas verticales','Diagonal /','Diagonal \\','Retícula','Damero 2×2'];
+const P=['0000000000000000','1000000000000000','1000000000100000','1000000100100100','1010000001010000','1010010110100101','1101011010110101','1110110110110111',
+ '1111101111111101','1111111111111111','1111000000000000','1000100010001000','1000010000100001','0001001001001000','1111100010001000','1100110000110011'].map(bits=>({size:4,bits}));
+const NB=P.length,MAXP=64;
+const nameOf=i=>i<NB?NAMES[i]:'Personalizada '+(i-NB+1)+' ('+P[i].size+'×'+P[i].size+')';
+const bitAt=(p,x,y)=>{const{size:n,bits}=P[p];return bits.charCodeAt(y%n*n+x%n)===49?2:1};   // 2 negro, 1 blanco
+const valid=p=>p&&(p.size===4||p.size===8)&&typeof p.bits==='string'&&p.bits.length===p.size*p.size&&/^[01]+$/.test(p.bits);
+const addPat=p=>valid(p)&&P.length<MAXP&&(P.findIndex(q=>q.bits===p.bits)<0)&&(P.push({size:p.size,bits:p.bits}),1);
+const savePats=()=>{try{localStorage.setItem('ichimatsu-pat',JSON.stringify(P.slice(NB)))}catch(_){}};
+try{JSON.parse(localStorage.getItem('ichimatsu-pat')||'[]').forEach(p=>addPat(p))}catch(_){}
+
+let W=64,H=64,px=new Uint8Array(W*H).fill(1),zoom=8,tool='pencil',size=1,fg=9,bg=0,mx=0,my=0,showGrid=0,fitted=1,space=0,pan=null,dr=null,img,u32;
+const hist=[],redo=[],inb=(x,y)=>x>=0&&y>=0&&x<W&&y<H;
+let mt;const msg=t=>{$('#msg').textContent=t;clearTimeout(mt);mt=setTimeout(()=>$('#msg').textContent='',3500)};
+
+/* ---------- herramientas ---------- */
+const mk=(h,t,fn,pr)=>{const b=el('button','b',h);b.title=t;b.setAttribute('aria-label',t.replace(/ [(·].*/,''));if(pr!==undefined)press(b,pr);b.onclick=fn;tools.append(b);return b};
+const TL=[['pencil','Lápiz (B)'],['eraser','Borrador (E)'],['fill','Relleno (G)'],['line','Línea (L)'],['rect','Rectángulo (R) · Mayús: relleno'],['hand','Mano: mover el lienzo (H) · o Espacio + arrastrar']];
+const KEYS={b:'pencil',e:'eraser',g:'fill',l:'line',r:'rect',h:'hand'},tb={};
+TL.forEach(([k,t])=>tb[k]=mk(svg(k),t,()=>setTool(k),k===tool));
+tools.append(el('hr'));
+const sb=[1,2,3].map(s=>mk(s,'Grosor '+s+' ('+s+')',()=>{size=s;sb.forEach((b,i)=>press(b,i+1===s))},s===size));
+tools.append(el('hr'));
+const bmx=mk(svg('mx'),'Simetría horizontal (M)',()=>press(bmx,mx=!mx),false);
+const bmy=mk(svg('my'),'Simetría vertical (V)',()=>press(bmy,my=!my),false);
+const bgr=mk(svg('grid'),'Cuadrícula (#)',()=>{press(bgr,showGrid=!showGrid);layout()},false);
+mk(svg('clear'),'Vaciar con la trama de fondo',()=>fillAll(bg));
+function setTool(k){tool=k;for(const j in tb)press(tb[j],j===k);cursor()}
+const cursor=()=>S.classList.toggle('pan',tool==='hand'||!!space);
+
+/* ---------- paleta de tramas ---------- */
+function drawPat(c,p,n=8){const x=c.getContext('2d');for(let y=0;y<n;y++)for(let i=0;i<n;i++){x.fillStyle=bitAt(p,i,y)>1?'#000':'#fff';x.fillRect(i,y,1,1)}}
+function buildPats(){PL.innerHTML='';P.forEach((_,i)=>{const b=el('button','sw'),c=el('canvas');c.width=c.height=8;drawPat(c,i);b.append(c);b.title=nameOf(i);b.setAttribute('aria-label','Trama: '+nameOf(i));b.dataset.i=i;
+  b.onclick=e=>{e.shiftKey?bg=i:fg=i;marks()};b.oncontextmenu=e=>{e.preventDefault();bg=i;marks()};PL.append(b)});marks()}
+function marks(){drawPat($('#cfg'),fg);drawPat($('#cbg'),bg);$('#pedit').disabled=fg<NB;
+  PL.querySelectorAll('.sw').forEach(b=>{const i=+b.dataset.i;b.dataset.r=i===fg?'f':i===bg?'g':'';fg===bg&&i===fg?b.dataset.b=1:delete b.dataset.b})}
+const swap=()=>{[fg,bg]=[bg,fg];marks()};$('#ind').onclick=swap;
+
+/* editor de tramas */
+let eN=4,eb=[],eIdx=-1;
+function edPrev(){const x=$('#epv').getContext('2d');for(let y=0;y<32;y++)for(let i=0;i<32;i++){x.fillStyle=eb[y%eN*eN+i%eN]?'#000':'#fff';x.fillRect(i,y,1,1)}}
+function edBuild(){const g=$('#eg');g.innerHTML='';g.className=eN>4?'s':'';g.style.gridTemplateColumns='repeat('+eN+',auto)';
+  eb.forEach((v,k)=>{const b=el('button','b');press(b,v);b.setAttribute('aria-label','Celda columna '+(k%eN+1)+', fila '+((k/eN|0)+1));b.onclick=()=>{eb[k]^=1;press(b,eb[k]);edPrev()};g.append(b)});
+  document.querySelectorAll('[data-n]').forEach(b=>press(b,+b.dataset.n===eN));edPrev()}
+function edSize(n){const o=eN;eb=Array.from({length:n*n},(_,k)=>eb[(k/n|0)%o*o+k%n%o]);eN=n;edBuild()}
+document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>edSize(+b.dataset.n));
+function openPat(i){eIdx=i;const p=P[i<0?fg:i];eN=p.size;eb=[...p.bits].map(Number);edBuild();$('#pdel').hidden=i<0;$('#psave').textContent=i<0?'Añadir':'Guardar';$('#dpat').showModal()}
+$('#pnew').onclick=()=>P.length>=MAXP?msg('Máximo de tramas alcanzado.'):openPat(-1);
+$('#pedit').onclick=()=>fg>=NB&&openPat(fg);
+$('#pinv').onclick=()=>{eb=eb.map(v=>1-v);edBuild()};
+$('#pcan').onclick=()=>$('#dpat').close();
+$('#psave').onclick=()=>{const p={size:eN,bits:eb.join('')};
+  if(eIdx<0){addPat(p);fg=P.findIndex(q=>q.bits===p.bits)}else P[eIdx]=p;savePats();buildPats();$('#dpat').close()};
+$('#pdel').onclick=()=>{const adj=(v,d)=>v===eIdx?d:v>eIdx?v-1:v;P.splice(eIdx,1);fg=adj(fg,9);bg=adj(bg,0);savePats();buildPats();$('#dpat').close()};
+
+/* ---------- lienzo ---------- */
+function layout(){
+  cv.style.width=W*zoom+'px';cv.style.height=H*zoom+'px';
+  const c='rgba(128,128,128,.55)',s=zoom*(zoom>=3?1:8)+'px';
+  $('#gv').style.cssText=showGrid?'background:linear-gradient(90deg,'+c+' 1px,#0000 1px),linear-gradient(180deg,'+c+' 1px,#0000 1px);background-size:'+s+' '+s:'';
+  $('#zl').textContent='×'+zoom;$('#wi').value=W;$('#hi').value=H;$('#nsel').value=W===H&&[32,48,64,96,128,256,512].includes(W)?W:'';
+}
+const fit=()=>{zoom=Math.max(1,Math.min(32,Math.floor(Math.min((S.clientWidth-40)/W,(S.clientHeight-40)/H))));fitted=1;layout()};
+function setZoom(z){const fx=(S.scrollLeft+S.clientWidth/2)/S.scrollWidth,fy=(S.scrollTop+S.clientHeight/2)/S.scrollHeight;
+  zoom=Math.max(1,Math.min(32,z));fitted=0;layout();S.scrollLeft=fx*S.scrollWidth-S.clientWidth/2;S.scrollTop=fy*S.scrollHeight-S.clientHeight/2}
+$('#zi').onclick=()=>setZoom(zoom+1);$('#zo').onclick=()=>setZoom(zoom-1);
+S.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefault();setZoom(zoom+(e.deltaY<0?1:-1))}},{passive:false});
+addEventListener('resize',()=>fitted&&fit());
+function render(){
+  if(cv.width!==W||cv.height!==H||!img){cv.width=W;cv.height=H;img=ctx.createImageData(W,H);u32=new Uint32Array(img.data.buffer)}
+  for(let i=0;i<px.length;i++)u32[i]=px[i]>1?0xFF000000:0xFFFFFFFF;
+  ctx.putImageData(img,0,0);$('#bun').disabled=!hist.length;$('#bre').disabled=!redo.length}
+
+/* ---------- primitivas (la trama está anclada al lienzo) ---------- */
+const set=(x,y,p)=>{if(inb(x,y))px[y*W+x]=bitAt(p,x,y)};
+const put=(x,y,p)=>{set(x,y,p);mx&&set(W-1-x,y,p);my&&set(x,H-1-y,p);mx&&my&&set(W-1-x,H-1-y,p)};
+const stamp=(x,y,p,s=size)=>{const o=s>>1;for(let j=0;j<s;j++)for(let i=0;i<s;i++)put(x-o+i,y-o+j,p)};
+function line([x0,y0],[x1,y1],p,s){const dx=Math.abs(x1-x0),dy=-Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1;let e=dx+dy;
+  for(;;){stamp(x0,y0,p,s);if(x0===x1&&y0===y1)break;const e2=2*e;if(e2>=dy){e+=dy;x0+=sx}if(e2<=dx){e+=dx;y0+=sy}}}
+function box(a,b,p,fillIt){const[x0,x1]=[a[0],b[0]].sort((m,n)=>m-n),[y0,y1]=[a[1],b[1]].sort((m,n)=>m-n);
+  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(fillIt||x===x0||x===x1||y===y0||y===y1)put(x,y,p)}
+function flood(sx,sy,p){if(!inb(sx,sy))return;const t=px[sy*W+sx],seen=new Uint8Array(W*H),q=[sy*W+sx];
+  while(q.length){const i=q.pop();if(seen[i]||px[i]!==t)continue;seen[i]=1;const x=i%W,y=i/W|0;x<W-1&&q.push(i+1);x&&q.push(i-1);y<H-1&&q.push(i+W);y&&q.push(i-W)}
+  for(let i=0;i<seen.length;i++)seen[i]&&(px[i]=bitAt(p,i%W,i/W|0))}
+const fill=(x,y,p)=>{flood(x,y,p);mx&&flood(W-1-x,y,p);my&&flood(x,H-1-y,p);mx&&my&&flood(W-1-x,H-1-y,p)};
+function fillAll(p){push();for(let y=0;y<H;y++)for(let x=0;x<W;x++)px[y*W+x]=bitAt(p,x,y);render();save()}
+
+/* ---------- puntero ---------- */
+const pos=e=>{const r=cv.getBoundingClientRect();return[Math.floor((e.clientX-r.left)/r.width*W),Math.floor((e.clientY-r.top)/r.height*H)]};
+cv.oncontextmenu=e=>e.preventDefault();
+cv.onpointerdown=e=>{
+  e.preventDefault();
+  if(e.button===1||e.button===0&&(tool==='hand'||space)){pan={x:e.clientX,y:e.clientY,l:S.scrollLeft,t:S.scrollTop};S.classList.add('panning')}
+  else if(tool==='hand'||e.button>2)return;
+  else{const[x,y]=pos(e),p=tool==='eraser'||e.button===2||e.shiftKey&&tool!=='rect'?bg:fg;push();
+    if(tool==='fill'){fill(x,y,p);render();save();return}
+    dr={a:[x,y],l:[x,y],base:px.slice(),p};(tool==='pencil'||tool==='eraser')&&stamp(x,y,p);render()}
+  cv.setPointerCapture(e.pointerId)};
+cv.onpointermove=e=>{const[x,y]=pos(e);$('#pos').textContent=inb(x,y)?x+','+y:'';
+  if(pan){S.scrollLeft=pan.l-e.clientX+pan.x;S.scrollTop=pan.t-e.clientY+pan.y;return}
+  if(!dr)return;
+  if(tool==='pencil'||tool==='eraser'){line(dr.l,[x,y],dr.p,size);dr.l=[x,y]}
+  else{px.set(dr.base);tool==='line'?line(dr.a,[x,y],dr.p,size):box(dr.a,[x,y],dr.p,e.shiftKey)}
+  render()};
+cv.onpointerup=cv.onpointercancel=()=>{if(pan){pan=null;S.classList.remove('panning')}if(dr){dr=null;save()}};
+
+/* ---------- historial y tamaño ---------- */
+const snap=()=>({w:W,h:H,d:px.slice()});
+function push(){hist.push(snap());hist.length>60&&hist.shift();redo.length=0}
+function restore(s){if(s.w!==W||s.h!==H){W=s.w;H=s.h;fit()}px=s.d.slice();render();save()}
+function undo(){hist.length&&(redo.push(snap()),restore(hist.pop()))}
+function rehacer(){redo.length&&(hist.push(snap()),restore(redo.pop()))}
+$('#bun').onclick=undo;$('#bre').onclick=rehacer;
+function resizeTo(w,h){w=clamp(w,W);h=clamp(h,H);if(w===W&&h===H)return layout();
+  push();const d=new Uint8Array(w*h).fill(1),o=px,ow=W;
+  for(let y=0;y<Math.min(H,h);y++)for(let x=0;x<Math.min(ow,w);x++)d[y*w+x]=o[y*ow+x];W=w;H=h;px=d;fit();render();save()}
+$('#nsel').onchange=e=>e.target.value?resizeTo(e.target.value,e.target.value):$('#wi').focus();
+$('#ap').onclick=()=>resizeTo($('#wi').value,$('#hi').value);
+['#wi','#hi'].forEach(s=>$(s).onkeydown=e=>e.key==='Enter'&&resizeTo($('#wi').value,$('#hi').value));
+$('#ncn').onclick=()=>$('#dnew').close();
+$('#nok').onclick=()=>{const w=clamp($('#nw').value,W),h=clamp($('#nh').value,H),f=$('#nf').value;push();W=w;H=h;px=new Uint8Array(W*H);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++)px[y*W+x]=f==='k'?2:f==='b'?bitAt(bg,x,y):1;fit();render();save();$('#dnew').close()};
+const xf=fn=>{push();fn();render();save()};
+
+/* ---------- importar imagen ---------- */
+const BAY=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];let src=null,iout=null;
+function dither(g,w,h,m,thr,inv){const o=new Uint8Array(w*h),a=Float32Array.from(g);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=y*w+x,v=a[i];let t=thr;
+    if(m==='b')t=(BAY[y%4*4+x%4]+.5)/16*255+thr-128;
+    const dark=v<t;o[i]=dark?2:1;
+    if(m==='f'){const e=v-(dark?0:255);x<w-1&&(a[i+1]+=e*7/16);if(y<h-1){x&&(a[i+w-1]+=e*3/16);a[i+w]+=e*5/16;x<w-1&&(a[i+w+1]+=e/16)}}}
+  if(inv)for(let i=0;i<o.length;i++)o[i]=3-o[i];return o}
+function preview(){if(!src)return;iout=dither(src.g,src.w,src.h,$('#imeth').value,+$('#ithr').value,$('#iinv').checked);
+  const c=$('#ipv');c.width=src.w;c.height=src.h;const x=c.getContext('2d'),im=x.createImageData(src.w,src.h),u=new Uint32Array(im.data.buffer);
+  iout.forEach((v,i)=>u[i]=v>1?0xFF000000:0xFFFFFFFF);x.putImageData(im,0,0);
+  let s=300/Math.max(src.w,src.h);if(s>=1)s=Math.floor(s);c.style.width=src.w*s+'px';c.style.height=src.h*s+'px';
+  $('#idim').textContent=src.w+' × '+src.h+' px'+(src.sc?' (reducida desde '+src.ow+' × '+src.oh+')':'')}
+['#imeth','#ithr','#iinv'].forEach(s=>$(s).oninput=preview);
+$('#fi').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const r=new FileReader();
+  r.onload=()=>{const im=new Image();
+    im.onload=()=>{const sc=Math.min(1,MAX/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*sc)),h=Math.max(1,Math.round(im.height*sc)),
+      c=el('canvas'),x=c.getContext('2d');c.width=w;c.height=h;x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(im,0,0,w,h);
+      const d=x.getImageData(0,0,w,h).data,g=new Float32Array(w*h);for(let i=0;i<g.length;i++)g[i]=.299*d[i*4]+.587*d[i*4+1]+.114*d[i*4+2];
+      src={w,h,g,sc:sc<1,ow:im.width,oh:im.height};preview();$('#dimg').showModal()};
+    im.onerror=()=>msg('No se pudo leer la imagen.');im.src=r.result};r.readAsDataURL(f)};
+$('#icn').onclick=()=>$('#dimg').close();
+$('#iok').onclick=()=>{if(!iout)return;push();W=src.w;H=src.h;px=iout.slice();fit();render();save();$('#dimg').close()};
+
+/* ---------- exportar: PNG, GIF, tramas JSON (offline y en la web) ---------- */
+async function download(name,blob){
+  const d=window.claude&&claude.use?await claude.use('downloads').catch(()=>null):null;
+  if(d)return d.save({filename:name,data:blob});
+  const a=el('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4e3)}
+const saveAs=async(name,blob)=>{try{await download(name,blob);msg('Guardado: '+name)}catch(e){msg(e&&e.code==='declined'?'Cancelado.':'No se pudo guardar.')}};
+const png=()=>new Promise(r=>cv.toBlob(r,'image/png'));
+function gif(){   // GIF89a de 1 fotograma, 2 colores, LZW
+  const w=[W&255,W>>8,H&255,H>>8],o=[...'GIF89a'].map(c=>c.charCodeAt()),d=[],D=new Map();let acc=0,nb=0,sz=3,nx=6;
+  o.push(...w,0x80,0,0,255,255,255,0,0,0,0x2c,0,0,0,0,...w,0,2);
+  const put=c=>{acc|=c<<nb;nb+=sz;for(;nb>=8;nb-=8,acc>>=8)d.push(acc&255)};
+  put(4);let c=px[0]-1;
+  for(let i=1;i<px.length;i++){const k=px[i]-1,key=c*4+k,f=D.get(key);
+    if(f!==undefined){c=f;continue}
+    put(c);if(nx===4096){put(4);D.clear();sz=3;nx=6}else{if(nx>=1<<sz)sz++;D.set(key,nx++)}c=k}
+  put(c);put(5);nb&&d.push(acc&255);
+  for(let i=0;i<d.length;i+=255){const s=d.slice(i,i+255);o.push(s.length,...s)}
+  o.push(0,0x3b);return new Blob([new Uint8Array(o)],{type:'image/gif'})}
+const patsJSON=()=>new Blob([JSON.stringify({format:'ichimatsu-patterns',version:1,patterns:P.map((p,i)=>({name:nameOf(i),size:p.size,bits:p.bits}))},null,1)],{type:'application/json'});
+$('#fj').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const j=JSON.parse(await f.text()),n=(Array.isArray(j)?j:j.patterns).filter(p=>addPat(p)).length;savePats();buildPats();msg(n+' tramas importadas.')}catch(_){msg('JSON no válido.')}};
+
+/* ---------- menú ---------- */
+const ITEMS=[
+ ['Nuevo lienzo…',()=>{$('#nw').value=W;$('#nh').value=H;$('#dnew').showModal()}],
+ ['Importar imagen…',()=>$('#fi').click()],
+ ['Guardar PNG',async()=>saveAs('ichimatsu-'+W+'x'+H+'.png',await png())],
+ ['Guardar GIF',()=>saveAs('ichimatsu-'+W+'x'+H+'.gif',gif())],
+ 0,
+ ['Exportar tramas (JSON)',()=>saveAs('ichimatsu-tramas.json',patsJSON())],
+ ['Importar tramas (JSON)…',()=>$('#fj').click()],
+ 0,
+ ['Vaciar con la trama de fondo',()=>fillAll(bg)],
+ ['Rellenar con la trama de primer plano',()=>fillAll(fg)],
+ ['Invertir blanco y negro',()=>xf(()=>px.forEach((v,i)=>px[i]=3-v))],
+ ['Voltear horizontalmente',()=>xf(()=>{for(let y=0;y<H;y++)for(let x=0;x<W>>1;x++){const a=y*W+x,b=a+W-1-2*x,t=px[a];px[a]=px[b];px[b]=t}})],
+ ['Voltear verticalmente',()=>xf(()=>{for(let y=0;y<H>>1;y++)for(let x=0;x<W;x++){const a=y*W+x,b=(H-1-y)*W+x,t=px[a];px[a]=px[b];px[b]=t}})],
+ ['Girar 90° a la derecha',()=>{push();const d=new Uint8Array(W*H);for(let y=0;y<H;y++)for(let x=0;x<W;x++)d[x*H+H-1-y]=px[y*W+x];px=d;[W,H]=[H,W];fit();render();save()}],
+ 0,
+ ['Mostrar u ocultar cuadrícula',()=>bgr.click()]];
+ITEMS.forEach(m=>{if(!m)return MENU.append(el('hr'));const b=el('button','',m[0]);b.setAttribute('role','menuitem');b.onclick=()=>{closeMenu();m[1]()};MENU.append(b)});
+const closeMenu=f=>{MENU.hidden=true;MB.setAttribute('aria-expanded','false');f&&MB.focus()};
+MB.onclick=()=>{if(MENU.hidden){MENU.hidden=false;MB.setAttribute('aria-expanded','true');MENU.querySelector('button').focus()}else closeMenu()};
+addEventListener('pointerdown',e=>{MENU.hidden||e.target.closest('.mw')||closeMenu()});
+MENU.onkeydown=e=>{const it=[...MENU.querySelectorAll('button')],i=it.indexOf(document.activeElement),k=e.key;
+  if(k==='Escape'){e.preventDefault();closeMenu(1)}
+  else if(['ArrowDown','ArrowUp','Home','End'].includes(k)){e.preventDefault();it[k==='Home'?0:k==='End'?it.length-1:(i+(k==='ArrowDown'?1:-1)+it.length)%it.length].focus()}
+  e.stopPropagation()};
+
+/* ---------- teclado ---------- */
+const typing=e=>e.target.closest('.menu,dialog')||e.target.matches('input,select');
+addEventListener('keydown',e=>{
+  if(typing(e))return;const k=e.key.toLowerCase(),m=e.ctrlKey||e.metaKey;
+  if(e.code==='Space'){e.preventDefault();space=1;cursor();return}
+  if(m){if(k==='z'||k==='y'){e.preventDefault();k==='y'||e.shiftKey?rehacer():undo()}return}
+  if(KEYS[k])setTool(KEYS[k]);else if(k==='x')swap();else if(k==='m')bmx.click();else if(k==='v')bmy.click();else if(k==='#')bgr.click();
+  else if(k==='+'||k==='=')setZoom(zoom+1);else if(k==='-')setZoom(zoom-1);else if(k==='0')fit();else if(k.length===1&&'123'.includes(k))sb[k-1].click()});
+addEventListener('keyup',e=>{if(e.code==='Space'){space=0;cursor();typing(e)||e.preventDefault()}});
+
+/* ---------- persistencia local ---------- */
+function save(){try{const b=new Uint8Array(px.length+7>>3);px.forEach((v,i)=>v>1&&(b[i>>3]|=128>>(i&7)));let s='';
+  for(let i=0;i<b.length;i+=8192)s+=String.fromCharCode.apply(null,b.subarray(i,i+8192));localStorage.setItem('ichimatsu',JSON.stringify({w:W,h:H,d:btoa(s)}))}catch(_){}}
+function load(){try{const o=JSON.parse(localStorage.getItem('ichimatsu'));if(!(o.w>=1&&o.w<=MAX&&o.h>=1&&o.h<=MAX))return;
+  const s=atob(o.d),p=new Uint8Array(o.w*o.h);if(s.length!==p.length+7>>3)return;
+  for(let i=0;i<p.length;i++)p[i]=s.charCodeAt(i>>3)&128>>(i&7)?2:1;W=o.w;H=o.h;px=p}catch(_){}}
+
+load();buildPats();fit();render();
+</script>
+</body>
+</html>
